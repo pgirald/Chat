@@ -4,14 +4,19 @@
     "description": "my first socket.io app",
     "type": "module",
     "dependencies": {
-        "express": "^4.19.2"
+        "express": "^4.19.2",
+        "mssql": "^10.0.4",
+        "reflect-metadata": "^0.2.2",
+        "typeorm": "^0.3.20"
     },
     "devDependencies": {
+        "@types/node": "^22.0.0",
         "browser-sync": "^3.0.2",
-        "nodemon": "^3.1.4"
+        "nodemon": "^3.1.4",
+        "typescript": "^5.5.4"
     },
     "scripts": {
-        "start": "node index.mjs",
-        "dev": "nodemon index.mjs --exec \"node browsersync.mjs\""
+        "start": "npx ts-node src/index.ts",
+        "dev": "nodemon --watch src --exec \"npx tsc && node browsersync.js\""
     }
 }
