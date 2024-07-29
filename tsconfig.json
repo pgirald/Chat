@@ -2,6 +2,8 @@
     "compilerOptions": {
         "noEmit": true,
         "module": "Node16",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
     },
     "include": [
         "src"
