@@ -17,7 +17,7 @@
         "typescript": "^5.5.4"
     },
     "scripts": {
-        "start": "npx tsx src/test.ts",
+        "start": "npx tsx src/index.ts",
         "dev": "nodemon --watch src --exec \"npx tsc && node browsersync.js\""
     }
 }
