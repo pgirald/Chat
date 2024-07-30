@@ -2,12 +2,13 @@
     "compilerOptions": {
         "noEmit": true,
         "module": "Node16",
+        "moduleResolution": "Node16",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
     },
     "include": [
         "src"
-    ],
+, "tests/utils/ObjectsMeta.test.ts"    ],
     "exclude": [
         "node_modules"
     ]
