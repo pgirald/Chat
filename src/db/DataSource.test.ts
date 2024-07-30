@@ -1,6 +1,6 @@
+/*
 import { sequelize } from "./DataSource.js";
 
-/*
 test("Check connection", async () => {
     try {
         await sequelize.authenticate();

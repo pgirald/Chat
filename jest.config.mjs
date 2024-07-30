@@ -17,6 +17,7 @@ const config = {
   extensionsToTreatAsEsm: [".ts"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   roots: ["src"],
+  modulePathIgnorePatterns: ["src/db/DataSource.test.ts"],
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
