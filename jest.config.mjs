@@ -16,7 +16,7 @@ const config = {
   },
   extensionsToTreatAsEsm: [".ts"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-  roots: ["tests"],
+  roots: ["src"],
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 

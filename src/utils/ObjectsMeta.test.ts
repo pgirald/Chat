@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { getKeys } from '../../src/utils/ObjectsMeta.js';
+import { getKeys } from './ObjectsMeta.js';
 
 it.each([
     [{ name: "Pablo", email: "p@gmail.com" }, { name: "name", email: "email" }],

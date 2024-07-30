@@ -23,6 +23,7 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
+    "build": "npx tsc",
     "start": "npx tsx src/index.ts",
     "dev": "nodemon --watch src --exec \"npx tsc && node browsersync.js\"",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
