@@ -1,4 +1,4 @@
-/*
+
 import { sequelize } from "./DataSource.js";
 
 test("Check connection", async () => {
@@ -9,4 +9,3 @@ test("Check connection", async () => {
         console.error('Unable to connect to the database:', error);
     }
 });
-*/

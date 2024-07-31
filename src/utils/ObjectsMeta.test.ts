@@ -8,6 +8,6 @@ it.each([
     ("Test getKeys function", (obj, expected) => {
         const objKeys = getKeys(obj);
         for (let key in expected) {
-            expect(1 == 1)
+            expect(objKeys[key] == expected[key])
         }
     })
