@@ -14,7 +14,7 @@ const config = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.(j|t)s$': '$1',
   },
-  extensionsToTreatAsEsm: ["ts", "tsx", "js", "jsx"],
+  extensionsToTreatAsEsm: [".ts"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   roots: ["src"],
   modulePathIgnorePatterns: ["src/db/DataSource.test.ts"],
