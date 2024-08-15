@@ -56,13 +56,12 @@ io.on("connection", (socket) => {
 		console.log(`${to}\n`);
 		console.log(sockets.map((s) => s.data.username));
 		console.log(sockets.length);
-		sockets.length > 0 &&
-			socket
-				.to(sockets.find((s) => s.data.username === to).id)
-				.emit("private message", {
-					content,
-					from: socket.data.username,
-				});
+		const receipt = sockets.find((s) => s.data.username === to);
+		receipt &&
+			socket.to(receipt.id).emit("private message", {
+				content,
+				from: socket.data.username,
+			});
 	});
 
 	// notify users upon disconnection
