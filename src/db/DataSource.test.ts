@@ -1,5 +1,4 @@
-
-import { sequelize } from "./DataSource.js";
+import { sequelize } from "./Data_Source.js";
 
 test("Check connection", async () => {
     try {
