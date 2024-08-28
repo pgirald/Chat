@@ -17,13 +17,20 @@ type E<T extends object, k extends keyof T> = Model<T, Omit<T, k>>;
 
 export const sequelize = new Sequelize({
 	dialect: "mssql",
-	database: "Chats",
-	username: "sa",
-	password: "MyServerDB",
-	host: "localhost",
-	port: 1433,
 	dialectOptions: {
-		options: { trustedConnection: true },
+		server: "localhost",
+		options: {
+			database: "Chats",
+			port: 1433,
+			trustServerCertificate: true,
+		},
+		authentication: {
+			type: "default",
+			options: {
+				userName: "sa",
+				password: "MyServerDB",
+			},
+		},
 	},
 });
 
@@ -157,7 +164,7 @@ const Clients = sequelize.define<E<Client, "id" | "about_me" | "role">>(
 );
 
 Clients.belongsTo(Roles, { foreignKey: "role" });
-Roles.hasOne(Clients);
+Roles.hasOne(Clients, { foreignKey: "role" });
 
 const Banned = sequelize.define<E<_Banned, "id">>("Banned", {
 	id: {
@@ -182,7 +189,7 @@ const Banned = sequelize.define<E<_Banned, "id">>("Banned", {
 });
 
 Banned.belongsTo(Clients, { foreignKey: "client" });
-Clients.hasOne(Banned);
+Clients.hasOne(Banned, { foreignKey: "client" });
 
 const Restrictions = sequelize.define<E<Named, "id">>("Restrictions", {
 	id: {
@@ -324,15 +331,17 @@ const Settings = sequelize.define<
 	},
 });
 
-Clients.hasOne(Settings);
+Clients.hasOne(Settings, { foreignKey: "client" });
 Settings.belongsTo(Clients, { foreignKey: "client" });
 
-Ringtones.hasMany(Settings);
+Ringtones.hasMany(Settings, { foreignKey: "groups_tone" });
 Settings.belongsTo(Ringtones, {
 	foreignKey: "groups_tone",
 });
 
-Ringtones.hasMany(Settings);
+Ringtones.hasMany(Settings, {
+	foreignKey: "notification_tone",
+});
 Settings.belongsTo(Ringtones, {
 	foreignKey: "notification_tone",
 });
@@ -350,7 +359,7 @@ const Chats = sequelize.define<E<Chat, "id" | "custom_ringtone">>("Chats", {
 			model: Clients,
 			key: "id",
 		},
-		onDelete: "SET NULL", //The next subsciber becomes the owner
+		onDelete: "NO ACTION", //The next subsciber becomes the owner
 	},
 	custom_ringtone: {
 		type: DataTypes.INTEGER,
@@ -363,10 +372,10 @@ const Chats = sequelize.define<E<Chat, "id" | "custom_ringtone">>("Chats", {
 	},
 });
 
-Clients.hasMany(Chats);
+Clients.hasMany(Chats, { foreignKey: "owner", as: "chat_owner" });
 Chats.belongsTo(Clients, { foreignKey: "owner", as: "chat_owner" });
 
-Ringtones.hasMany(Chats);
+Ringtones.hasMany(Chats, { foreignKey: "custom_ringtone" });
 Chats.belongsTo(Ringtones, { foreignKey: "custom_ringtone" });
 
 const Subscriptions = sequelize.define<E<Subscription, never>>(
@@ -438,10 +447,10 @@ const Messages = sequelize.define<E<Message, "id">>("Messages", {
 	},
 });
 
-Clients.hasMany(Messages);
+Clients.hasMany(Messages, { foreignKey: "sender" });
 Messages.belongsTo(Clients, { foreignKey: "sender" });
 
-Chats.hasMany(Messages);
+Chats.hasMany(Messages, { foreignKey: "chat" });
 Messages.belongsTo(Chats, { foreignKey: "chat" });
 
 const Attachments = sequelize.define<E<Attachment, "id">>("Attachments", {
@@ -465,5 +474,5 @@ const Attachments = sequelize.define<E<Attachment, "id">>("Attachments", {
 	},
 });
 
-Messages.hasMany(Attachments);
+Messages.hasMany(Attachments, { foreignKey: "message" });
 Attachments.belongsTo(Messages, { foreignKey: "message" });
