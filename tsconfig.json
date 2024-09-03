@@ -1,14 +1,18 @@
 {
     "compilerOptions": {
+        "downlevelIteration": true,
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
         "noEmit": true,
-        "module": "Node16",
-        "moduleResolution": "Node16",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
     },
     "include": [
-        "src"
-, "src/utils/ObjectsMeta.test.ts"    ],
+        "tests",
+        "src",
+        "src/utils/ObjectsMeta.test.ts"
+    ],
     "exclude": [
         "node_modules"
     ]

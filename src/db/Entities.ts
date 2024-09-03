@@ -9,12 +9,12 @@ export type Client = {
 	username: string;
 	email: string;
 	password: string;
-	country_code: string;
-	phone_number: string;
+	phone_number?: string;
 	first_name: string;
 	last_name: string;
 	about_me?: string;
 	role?: number;
+	img?: string;
 };
 
 export type Banned = {
@@ -30,7 +30,7 @@ export type Lock = {
 };
 
 export type Ringtone = Named & {
-	blob: Buffer;
+	url: string;
 };
 
 export type Setting = {
@@ -47,6 +47,8 @@ export type Setting = {
 
 export type Chat = {
 	id: number;
+	name?: string;
+	img?: string;
 	owner: number;
 	custom_ringtone?: number;
 };
@@ -54,15 +56,21 @@ export type Chat = {
 export type Message = {
 	id: number;
 	content: string;
-	time: Date;
 	sender: number;
 	chat: number;
+};
+
+export type Reception = {
+	id: number;
+	time: Date;
+	receipt: number;
+	message: number;
 };
 
 export type Attachment = {
 	id: number;
 	name: string;
-	blob: Buffer;
+	url: string;
 	message: number;
 };
 
