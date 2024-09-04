@@ -12,22 +12,35 @@ import {
 	Role as Rolevw,
 	Ringtone as Ringtonevw,
 	User,
+	Settings,
 } from "chat-api";
-import { Client, Message, Named, Ringtone } from "../../src/db/Entities";
+import {
+	Chat,
+	Client,
+	Message,
+	Named,
+	Ringtone,
+	Setting,
+	Subscription,
+} from "../../src/db/Entities";
 
 test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 	"Generate fake views",
 	(fakesFile, outFile) => {
 		const fakeData: Tables = JSON.parse(fs.readFileSync(fakesFile).toString());
-		const views: { user: User; chats: Chatvw[] }[] = [];
+		const views: { user: User; settings?: Settings; chats: Chatvw[] }[] = [];
+		let clientSubs: Subscription[];
+		let dbChats: Chat[];
+		let chats: Chatvw[];
+		let settings: Setting;
 		for (const dbUser of fakeData.clients) {
-			const clientSubs = fakeData.subscriptions.filter(
+			clientSubs = fakeData.subscriptions.filter(
 				(subs) => subs.sub === dbUser.id
 			);
-			const dbChats = clientSubs.map((subs) =>
+			dbChats = clientSubs.map((subs) =>
 				fakeData.chats.find((chat) => chat.id === subs.chat)
 			);
-			const chats: Chatvw[] = dbChats.map((chat) => ({
+			chats = dbChats.map((chat) => ({
 				id: chat.id,
 				messages: fakeData.messages
 					.filter((msg) => msg.chat === chat.id)
@@ -50,7 +63,14 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 						fakeData.ringtones.find((tone) => tone.id === chat.custom_ringtone)
 					),
 			}));
-			views.push({ user: client2user(dbUser), chats: chats });
+			settings = fakeData.settings.find(
+				(setting) => setting.client === dbUser.id
+			);
+			views.push({
+				user: client2user(dbUser),
+				settings: settings && setting2view(settings),
+				chats: chats,
+			});
 		}
 
 		fs.writeFileSync(outFile, JSON.stringify(views));
@@ -136,6 +156,18 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 
 		function ringtone2view(dbRingtone: Ringtone): Ringtonevw {
 			return { name: dbRingtone.name, url: dbRingtone.url };
+		}
+
+		function setting2view(setting: Setting): Settings {
+			return {
+				chatApproval: setting.chat_approval,
+				discoverability: setting.discoverability,
+				enableNotifications: setting.enable_notifications,
+				seenStatus: setting.seen_status,
+				showOnlineStatus: setting.show_online_status,
+				groupsTone: setting.groups_tone,
+				notificationTone: setting.notification_tone,
+			};
 		}
 	}
 );
