@@ -15,7 +15,7 @@ import {
 } from "chat-api";
 import { Client, Message, Named, Ringtone } from "../../src/db/Entities";
 
-test.each<[string, string]>([["fakeData.json", "views.json"]])(
+test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 	"Generate fake views",
 	(fakesFile, outFile) => {
 		const fakeData: Tables = JSON.parse(fs.readFileSync(fakesFile).toString());
@@ -28,6 +28,7 @@ test.each<[string, string]>([["fakeData.json", "views.json"]])(
 				fakeData.chats.find((chat) => chat.id === subs.chat)
 			);
 			const chats: Chatvw[] = dbChats.map((chat) => ({
+				id: chat.id,
 				messages: fakeData.messages
 					.filter((msg) => msg.chat === chat.id)
 					.map((msg) => message2view(msg, dbUser)),
@@ -59,6 +60,7 @@ test.each<[string, string]>([["fakeData.json", "views.json"]])(
 		//----------------------------------Function definitions----------------------------------------
 		function message2view(message: Message, dbUser: Client): Messagevw {
 			return {
+				id: message.id,
 				content: message.content,
 				receptionTime: fakeData.receptions.find(
 					(recp) => recp.message === message.id && recp.receipt === dbUser.id
@@ -88,6 +90,7 @@ test.each<[string, string]>([["fakeData.json", "views.json"]])(
 
 		function client2user(dbClient: Client): User {
 			return {
+				id: dbClient.id,
 				email: dbClient.email,
 				firstName: dbClient.first_name,
 				lastName: dbClient.last_name,

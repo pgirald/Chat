@@ -78,54 +78,63 @@ export function defineModels(sequelize: Sequelize) {
 
 	const Clients = sequelize.define<
 		E<Client, "id" | "about_me" | "role" | "img" | "phone_number">
-	>("Clients", {
-		id: {
-			type: DataTypes.INTEGER,
-			autoIncrement: true,
-			primaryKey: true,
-		},
-		username: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		email: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		password: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-		},
-		phone_number: {
-			type: DataTypes.STRING,
-			allowNull: true,
-		},
-		first_name: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		last_name: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		about_me: {
-			type: DataTypes.STRING(400),
-			allowNull: true,
-		},
-		img: {
-			type: DataTypes.STRING(),
-			allowNull: true,
-		},
-		role: {
-			type: DataTypes.INTEGER,
-			allowNull: true,
-			references: {
-				model: Roles,
-				key: "id",
+	>(
+		"Clients",
+		{
+			id: {
+				type: DataTypes.INTEGER,
+				autoIncrement: true,
+				primaryKey: true,
 			},
-			onDelete: "SET NULL",
+			username: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			email: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			password: {
+				type: DataTypes.TEXT,
+				allowNull: false,
+			},
+			phone_number: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
+			first_name: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			last_name: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
+			about_me: {
+				type: DataTypes.STRING(400),
+				allowNull: true,
+			},
+			img: {
+				type: DataTypes.STRING(),
+				allowNull: true,
+			},
+			role: {
+				type: DataTypes.INTEGER,
+				allowNull: true,
+				references: {
+					model: Roles,
+					key: "id",
+				},
+				onDelete: "SET NULL",
+			},
 		},
-	});
+		{
+			indexes: [
+				{ unique: true, fields: ["email"] },
+				{ unique: true, fields: ["username"] },
+			],
+		}
+	);
 
 	Clients.belongsTo(Roles, { foreignKey: "role" });
 	Roles.hasOne(Clients, { foreignKey: "role" });

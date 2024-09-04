@@ -3,7 +3,7 @@ import { dbMap, Tables } from "../src/FakeData.js";
 import * as fs from "fs";
 import { testingSequelize } from "../src/Data_Source.js";
 
-test.each<[string, boolean]>([["fakeData.json", true]])(
+test.each<[string, boolean]>([["tests/fakeData.json", true]])(
 	"Check connection",
 	async (fakesFile, shouldSync) => {
 		try {

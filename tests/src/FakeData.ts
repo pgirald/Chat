@@ -105,18 +105,21 @@ export function generateData() {
 	);
 
 	const clientsIds = range(1, 40);
-	const clients: Client[] = clientsIds.map((id) => ({
-		id: id,
-		email: faker.internet.email(),
-		first_name: faker.person.firstName(),
-		last_name: faker.person.lastName(),
-		phone_number: faker.phone.number(),
-		username: faker.internet.userName(),
-		password: "123",
-		about_me: faker.word.words({ count: { min: 0, max: 10 } }) || undefined,
-		role: faker.datatype.boolean() ? randElm(rolesIds) : undefined,
-		img: faker.datatype.boolean() ? faker.internet.url() : undefined,
-	}));
+	const clients: Client[] = unique(
+		clientsIds.map((id) => ({
+			id: id,
+			email: faker.internet.email(),
+			first_name: faker.person.firstName(),
+			last_name: faker.person.lastName(),
+			phone_number: faker.phone.number(),
+			username: faker.internet.userName(),
+			password: "123",
+			about_me: faker.word.words({ count: { min: 0, max: 10 } }) || undefined,
+			role: faker.datatype.boolean() ? randElm(rolesIds) : undefined,
+			img: faker.datatype.boolean() ? faker.internet.url() : undefined,
+		})),
+		(cl1, cl2) => cl1.email === cl2.email || cl1.username === cl2.username
+	);
 
 	const banneds: Banned[] = unique(
 		range(1, 5).map((id) => ({
