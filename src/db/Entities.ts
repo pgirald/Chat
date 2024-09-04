@@ -34,7 +34,6 @@ export type Ringtone = Named & {
 };
 
 export type Setting = {
-	id: number;
 	enable_notifications: boolean;
 	seen_status: boolean;
 	show_online_status: boolean;

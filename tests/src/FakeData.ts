@@ -156,8 +156,7 @@ export function generateData() {
 	}));
 
 	const settings: Setting[] = unique(
-		range(1, 8).map((id) => ({
-			id: id,
+		range(1, 8).map((_) => ({
 			chat_approval: faker.datatype.boolean(),
 			discoverability: faker.datatype.boolean(),
 			enable_notifications: faker.datatype.boolean(),

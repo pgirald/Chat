@@ -242,13 +242,8 @@ export function defineModels(sequelize: Sequelize) {
 	});
 
 	const Settings = sequelize.define<
-		E<Setting, "id" | "notification_tone" | "groups_tone">
+		E<Setting, "notification_tone" | "groups_tone">
 	>("Settings", {
-		id: {
-			type: DataTypes.INTEGER,
-			autoIncrement: true,
-			primaryKey: true,
-		},
 		enable_notifications: {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
@@ -277,7 +272,7 @@ export function defineModels(sequelize: Sequelize) {
 				key: "id",
 			},
 			onDelete: "CASCADE",
-			unique: true,
+			primaryKey: true,
 		},
 		notification_tone: {
 			type: DataTypes.INTEGER,
