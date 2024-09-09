@@ -23,6 +23,9 @@ import {
 	Setting,
 	Subscription,
 } from "../../src/db/Entities";
+import { unique } from "../../src/utils/general";
+import { inspect } from "util";
+import { stringify } from "flatted";
 
 test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 	"Generate fake views",
@@ -32,7 +35,17 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 		let clientSubs: Subscription[];
 		let dbChats: Chat[];
 		let chats: Chatvw[];
+		let contactsPool: Contact[];
+		let rolesPool: Rolevw[];
+		let ringtonesPool: Ringtonevw[];
 		let settings: Setting;
+		let user: User;
+
+		rolesPool = fakeData.roles.map((role) => role2view(role));
+		ringtonesPool = fakeData.ringtones.map((ringtone) =>
+			ringtone2view(ringtone)
+		);
+
 		for (const dbUser of fakeData.clients) {
 			clientSubs = fakeData.subscriptions.filter(
 				(subs) => subs.sub === dbUser.id
@@ -40,27 +53,38 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 			dbChats = clientSubs.map((subs) =>
 				fakeData.chats.find((chat) => chat.id === subs.chat)
 			);
+
+			contactsPool = unique(
+				dbChats
+					.map((chat) =>
+						fakeData.subscriptions
+							.filter((subs) => subs.chat === chat.id)
+							.map((subs) =>
+								fakeData.clients.find((client) => subs.sub === client.id)
+							)
+							.map((client) => client2view(client, dbUser))
+					)
+					.flat(),
+				(contact1, contact2) => contact1.id === contact2.id
+			);
+
 			chats = dbChats.map((chat) => ({
 				id: chat.id,
 				messages: fakeData.messages
 					.filter((msg) => msg.chat === chat.id)
 					.map((msg) => message2view(msg, dbUser)),
 				name: chat.name,
-				owner: client2view(
-					fakeData.clients.find((client) => client.id === chat.owner),
-					dbUser
-				),
+				owner: contactsPool.find((contact) => contact.id === chat.owner),
 				subs: clientSubs
 					.filter((subs) => subs.chat === chat.id)
 					.map((subs) =>
-						fakeData.clients.find((client) => subs.sub === client.id)
-					)
-					.map((client) => client2view(client, dbUser)),
+						contactsPool.find((contact) => subs.sub === contact.id)
+					),
 				img: chat.img,
 				ringtone:
 					chat.custom_ringtone &&
-					ringtone2view(
-						fakeData.ringtones.find((tone) => tone.id === chat.custom_ringtone)
+					ringtonesPool.find(
+						(ringtone) => ringtone.id === chat.custom_ringtone
 					),
 			}));
 			settings = fakeData.settings.find(
@@ -73,12 +97,18 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 			});
 		}
 
-		fs.writeFileSync(outFile, JSON.stringify(views));
+		fs.writeFileSync(outFile, stringify(views), { flag: "w" });
 		console.log(
 			"------------------------------------------File written succesfully------------------------------------------"
 		);
 		//----------------------------------Function definitions----------------------------------------
 		function message2view(message: Message, dbUser: Client): Messagevw {
+			const sender = contactsPool.find(
+				(contact) => contact.id === message.sender
+			);
+			if (!sender) {
+				throw Error("Sender not found");
+			}
 			return {
 				id: message.id,
 				content: message.content,
@@ -88,6 +118,7 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 				attachments: fakeData.attachments
 					.filter((att) => att.message === message.id)
 					.map((att) => ({ name: att.name, url: att.url })),
+				sender: sender,
 			};
 		}
 
@@ -119,8 +150,7 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 				aboutMe: dbClient.about_me,
 				img: dbClient.img,
 				role:
-					dbClient.role &&
-					role2view(fakeData.roles.find((role) => role.id === dbClient.role)),
+					dbClient.role && rolesPool.find((role) => role.id === dbClient.role),
 			};
 		}
 
@@ -130,6 +160,7 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 				(ass) => ass.role === dbRole.id
 			);
 			return {
+				id: role.id,
 				name: dbRole.name,
 				broadcast:
 					assignations.length > 0 &&
@@ -155,7 +186,11 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 		}
 
 		function ringtone2view(dbRingtone: Ringtone): Ringtonevw {
-			return { name: dbRingtone.name, url: dbRingtone.url };
+			return {
+				id: dbRingtone.id,
+				name: dbRingtone.name,
+				url: dbRingtone.url,
+			};
 		}
 
 		function setting2view(setting: Setting): Settings {
