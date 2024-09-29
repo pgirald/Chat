@@ -8,7 +8,6 @@ import {
 	Lock,
 	Message,
 	Named,
-	Reception,
 	Ringtone,
 	Setting,
 	Subscription,
@@ -33,7 +32,6 @@ import {
 	Chats,
 	Subscriptions,
 	Messages,
-	Receptions,
 	Attachments,
 } from "../src/Data_Source.js";
 
@@ -196,25 +194,17 @@ export function generateData() {
 	);
 
 	gen.reset();
-	const receptions: Reception[] = [];
 
 	const messagesIds = range(1, 50000);
 	const messages: Message[] = messagesIds.map((id) => {
 		const chat = randElm(chats);
 		const subcriptions = subscriptions.filter((s) => s.chat === chat.id);
-		for (const subscription of subcriptions) {
-			receptions.push({
-				id: gen.next(),
-				time: faker.date.future(),
-				message: id,
-				receipt: subscription.sub,
-			});
-		}
 		return {
 			id: id,
 			chat: chat.id,
 			content: faker.word.words({ count: { min: 1, max: 20 } }),
 			sender: randElm(subcriptions.map((s) => s.sub)),
+			receptionTime: faker.date.future(),
 		};
 	});
 
@@ -242,7 +232,6 @@ export function generateData() {
 		chats,
 		subscriptions,
 		messages,
-		receptions,
 		attachments,
 	};
 }
@@ -263,6 +252,5 @@ export const dbMap = {
 	chats: Chats,
 	subscriptions: Subscriptions,
 	messages: Messages,
-	receptions: Receptions,
 	attachments: Attachments,
 };

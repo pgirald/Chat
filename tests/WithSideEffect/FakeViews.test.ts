@@ -1,10 +1,5 @@
 import * as fs from "fs";
-import {
-	permissionsEnum,
-	restrictionsEnum,
-	rolesEnum,
-	Tables,
-} from "../src/FakeData";
+import { permissionsEnum, restrictionsEnum, Tables } from "../src/FakeData";
 import {
 	Chat as Chatvw,
 	Message as Messagevw,
@@ -24,14 +19,18 @@ import {
 	Subscription,
 } from "../../src/db/Entities";
 import { unique } from "../../src/utils/general";
-import { inspect } from "util";
 import { stringify } from "flatted";
 
 test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 	"Generate fake views",
 	(fakesFile, outFile) => {
 		const fakeData: Tables = JSON.parse(fs.readFileSync(fakesFile).toString());
-		const views: { user: User; settings?: Settings; chats: Chatvw[] }[] = [];
+		const views: {
+			user: User;
+			settings?: Settings;
+			chats: Chatvw[];
+			allChats: Chatvw[];
+		}[] = [];
 		let clientSubs: Subscription[];
 		let dbChats: Chat[];
 		let chats: Chatvw[];
@@ -39,6 +38,7 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 		let rolesPool: Rolevw[];
 		let ringtonesPool: Ringtonevw[];
 		let settings: Setting;
+		let allChats: Chatvw[];
 		let user: User;
 
 		rolesPool = fakeData.roles.map((role) => role2view(role));
@@ -50,6 +50,7 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 			clientSubs = fakeData.subscriptions.filter(
 				(subs) => subs.sub === dbUser.id
 			);
+
 			dbChats = clientSubs.map((subs) =>
 				fakeData.chats.find((chat) => chat.id === subs.chat)
 			);
@@ -68,14 +69,38 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 				(contact1, contact2) => contact1.id === contact2.id
 			);
 
-			chats = dbChats.map((chat) => ({
+			allChats = fakeData.chats.map((chat) => chat2view(chat, dbUser));
+
+			chats = dbChats.map((chat) =>
+				allChats.find((_chat) => chat.id === chat.id)
+			);
+
+			settings = fakeData.settings.find(
+				(setting) => setting.client === dbUser.id
+			);
+
+			views.push({
+				user: client2user(dbUser),
+				settings: settings && setting2view(settings),
+				chats: chats,
+				allChats,
+			});
+		}
+
+		fs.writeFileSync(outFile, stringify(views), { flag: "w" });
+		console.log(
+			"------------------------------------------File written succesfully------------------------------------------"
+		);
+		//----------------------------------Function definitions----------------------------------------
+		function chat2view(chat: Chat, dbUser: Client) {
+			return {
 				id: chat.id,
 				messages: fakeData.messages
 					.filter((msg) => msg.chat === chat.id)
 					.map((msg) => message2view(msg, dbUser)),
 				name: chat.name,
 				owner: contactsPool.find((contact) => contact.id === chat.owner),
-				subs: clientSubs
+				subs: fakeData.subscriptions
 					.filter((subs) => subs.chat === chat.id)
 					.map((subs) =>
 						contactsPool.find((contact) => subs.sub === contact.id)
@@ -86,22 +111,9 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 					ringtonesPool.find(
 						(ringtone) => ringtone.id === chat.custom_ringtone
 					),
-			}));
-			settings = fakeData.settings.find(
-				(setting) => setting.client === dbUser.id
-			);
-			views.push({
-				user: client2user(dbUser),
-				settings: settings && setting2view(settings),
-				chats: chats,
-			});
+			};
 		}
 
-		fs.writeFileSync(outFile, stringify(views), { flag: "w" });
-		console.log(
-			"------------------------------------------File written succesfully------------------------------------------"
-		);
-		//----------------------------------Function definitions----------------------------------------
 		function message2view(message: Message, dbUser: Client): Messagevw {
 			const sender = contactsPool.find(
 				(contact) => contact.id === message.sender
@@ -112,9 +124,7 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 			return {
 				id: message.id,
 				content: message.content,
-				receptionTime: fakeData.receptions.find(
-					(recp) => recp.message === message.id && recp.receipt === dbUser.id
-				).time,
+				receptionTime: message.receptionTime,
 				attachments: fakeData.attachments
 					.filter((att) => att.message === message.id)
 					.map((att) => ({ name: att.name, url: att.url })),

@@ -11,7 +11,6 @@ import {
 	Message,
 	Attachment,
 	Subscription,
-	Reception,
 } from "./Entities.js";
 
 type E<T extends object, k extends keyof T> = Model<T, Omit<T, k>>;
@@ -410,6 +409,10 @@ export function defineModels(sequelize: Sequelize) {
 			},
 			onDelete: "CASCADE",
 		},
+		receptionTime: {
+			type: DataTypes.TIME,
+			allowNull: false,
+		},
 	});
 
 	Clients.hasMany(Messages, { foreignKey: "sender" });
@@ -417,51 +420,6 @@ export function defineModels(sequelize: Sequelize) {
 
 	Chats.hasMany(Messages, { foreignKey: "chat" });
 	Messages.belongsTo(Chats, { foreignKey: "chat" });
-
-	const Receptions = sequelize.define<E<Reception, never>>(
-		"Receptions",
-		{
-			id: {
-				type: DataTypes.INTEGER,
-				autoIncrement: true,
-				primaryKey: true,
-			},
-			time: {
-				type: DataTypes.TIME,
-				allowNull: false,
-			},
-			message: {
-				type: DataTypes.INTEGER,
-				allowNull: false,
-				references: {
-					model: Messages,
-					key: "id",
-				},
-				onDelete: "NO ACTION",
-			},
-			receipt: {
-				type: DataTypes.INTEGER,
-				allowNull: false,
-				references: {
-					model: Clients,
-					key: "id",
-				},
-				onDelete: "NO ACTION",
-			},
-		},
-		{ indexes: [{ unique: true, fields: ["message", "receipt"] }] }
-	);
-
-	Messages.belongsToMany(Clients, {
-		through: Receptions,
-		foreignKey: "message",
-		as: "receptors",
-	});
-	Clients.belongsToMany(Messages, {
-		through: Receptions,
-		foreignKey: "receipt",
-		as: "recieved_messages",
-	});
 
 	const Attachments = sequelize.define<E<Attachment, "id">>("Attachments", {
 		id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
@@ -500,7 +458,6 @@ export function defineModels(sequelize: Sequelize) {
 		Chats,
 		Subscriptions,
 		Messages,
-		Receptions,
 		Attachments,
 	};
 }

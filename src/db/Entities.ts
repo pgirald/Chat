@@ -57,13 +57,7 @@ export type Message = {
 	content: string;
 	sender: number;
 	chat: number;
-};
-
-export type Reception = {
-	id: number;
-	time: Date;
-	receipt: number;
-	message: number;
+	receptionTime: Date;
 };
 
 export type Attachment = {

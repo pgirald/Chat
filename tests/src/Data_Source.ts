@@ -34,6 +34,5 @@ export const {
 	Chats,
 	Subscriptions,
 	Messages,
-	Receptions,
 	Attachments,
 } = defineModels(testingSequelize);
