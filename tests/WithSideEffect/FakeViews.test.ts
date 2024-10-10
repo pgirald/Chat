@@ -29,7 +29,7 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 			user: User;
 			settings?: Settings;
 			chats: Chatvw[];
-			allChats: Chatvw[];
+			contacts: Contact[];
 		}[] = [];
 		let clientSubs: Subscription[];
 		let dbChats: Chat[];
@@ -39,9 +39,9 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 		let ringtonesPool: Ringtonevw[];
 		let settings: Setting;
 		let allChats: Chatvw[];
-		let user: User;
 
 		rolesPool = fakeData.roles.map((role) => role2view(role));
+
 		ringtonesPool = fakeData.ringtones.map((ringtone) =>
 			ringtone2view(ringtone)
 		);
@@ -55,24 +55,28 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 				fakeData.chats.find((chat) => chat.id === subs.chat)
 			);
 
-			contactsPool = unique(
-				dbChats
-					.map((chat) =>
-						fakeData.subscriptions
-							.filter((subs) => subs.chat === chat.id)
-							.map((subs) =>
-								fakeData.clients.find((client) => subs.sub === client.id)
-							)
-							.map((client) => client2view(client, dbUser))
-					)
-					.flat(),
-				(contact1, contact2) => contact1.id === contact2.id
+			// contactsPool = unique(
+			// 	dbChats
+			// 		.map((chat) =>
+			// 			fakeData.subscriptions
+			// 				.filter((subs) => subs.chat === chat.id)
+			// 				.map((subs) =>
+			// 					fakeData.clients.find((client) => subs.sub === client.id)
+			// 				)
+			// 				.map((client) => client2view(client, dbUser))
+			// 		)
+			// 		.flat(),
+			// 	(contact1, contact2) => contact1.id === contact2.id
+			// );
+
+			contactsPool = fakeData.clients.map((client) =>
+				client2view(client, dbUser)
 			);
 
 			allChats = fakeData.chats.map((chat) => chat2view(chat, dbUser));
 
 			chats = dbChats.map((chat) =>
-				allChats.find((_chat) => chat.id === chat.id)
+				allChats.find((_chat) => _chat.id === chat.id)
 			);
 
 			settings = fakeData.settings.find(
@@ -83,7 +87,7 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 				user: client2user(dbUser),
 				settings: settings && setting2view(settings),
 				chats: chats,
-				allChats,
+				contacts: contactsPool,
 			});
 		}
 
@@ -210,8 +214,10 @@ test.each<[string, string]>([["tests/fakeData.json", "tests/fakeViews.json"]])(
 				enableNotifications: setting.enable_notifications,
 				seenStatus: setting.seen_status,
 				showOnlineStatus: setting.show_online_status,
-				groupsTone: setting.groups_tone,
-				notificationTone: setting.notification_tone,
+				groupsTone: ringtonesPool.find((r) => r.id === setting.groups_tone),
+				notificationTone: ringtonesPool.find(
+					(r) => r.id === setting.notification_tone
+				),
 			};
 		}
 	}
