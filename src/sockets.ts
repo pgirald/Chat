@@ -33,8 +33,9 @@ export function setupSockets(io: Server) {
 
 		socket.on(
 			events.privateMessage,
-			({ content, to }: { content: string; to: string }) => {
-				socket.to(to).emit(events.privateMessage, {
+			({ content, to, from }: PrivateMessage) => {
+				console.log("I was triggered");
+				io.to([from, to]).emit(events.privateMessage, {
 					content,
 					from: username,
 					to: to,

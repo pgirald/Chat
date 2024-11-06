@@ -3,6 +3,7 @@ import { AddressInfo } from "net";
 import { Server } from "socket.io";
 import ioc, { Socket, SocketOptions } from "socket.io-client";
 import { events, PrivateMessage, setupSockets } from "../src/sockets";
+import { jest } from "@jest/globals";
 
 const usernames = { user1: "Maki", user2: "Yuji" };
 
@@ -34,28 +35,46 @@ describe("my awesome project", () => {
 	});
 
 	test("should work", async () => {
-		user2.once(events.privateMessage, (pmsg: PrivateMessage) => {
-			expect(pmsg.content).toBe(`Hello ${usernames.user2}!!`);
-			expect(pmsg.from).toBe(usernames.user1);
-			expect(pmsg.to).toBe(usernames.user2);
+		const checkMsgsMatch = jest.fn((received: PrivateMessage) => {
+			checkMsgs(received);
 		});
-		user1.emit(events.privateMessage, {
+		let sent = {
 			content: `Hello ${usernames.user2}!!`,
 			from: usernames.user1,
 			to: usernames.user2,
-		} as PrivateMessage);
-		await waitFor(user2, events.privateMessage);
-		user1.once(events.privateMessage, (pmsg: PrivateMessage) => {
-			expect(pmsg.content).toBe(`Hello ${usernames.user1}, what happens?`);
-			expect(pmsg.from).toBe(usernames.user2);
-			expect(pmsg.to).toBe(usernames.user1);
-		});
-		user2.emit(events.privateMessage, {
+		};
+		let promise: Promise<any>;
+		user2.once(events.privateMessage, checkMsgsMatch);
+		user1.once(events.privateMessage, checkMsgsMatch);
+		promise = Promise.all([
+			waitFor(user1, events.privateMessage),
+			waitFor(user2, events.privateMessage),
+		]);
+		user1.emit(events.privateMessage, sent);
+		await promise;
+		// await Promise.all([
+		// 	waitFor(user2, events.privateMessage),
+		// 	waitFor(user1, events.privateMessage),
+		// ]);
+		sent = {
 			content: `Hello ${usernames.user1}, what happens?`,
 			from: usernames.user2,
 			to: usernames.user1,
-		} as PrivateMessage);
-		await waitFor(user1, events.privateMessage);
+		};
+		user1.once(events.privateMessage, checkMsgsMatch);
+		user2.once(events.privateMessage, checkMsgsMatch);
+		promise = Promise.all([
+			waitFor(user1, events.privateMessage),
+			waitFor(user2, events.privateMessage),
+		]);
+		user2.emit(events.privateMessage, sent);
+		await promise;
+
+		expect(checkMsgsMatch.mock.calls).toHaveLength(4);
+
+		function checkMsgs(received: PrivateMessage) {
+			expect(received).toEqual(sent);
+		}
 	});
 
 	afterAll(() => {
