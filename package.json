@@ -32,7 +32,6 @@
     "start": "npx tsx src/index.ts",
     "dev": "nodemon --watch src --exec \"npx tsc && node browsersync.js\"",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "se_test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathIgnorePatterns=/node_modules/ --findRelatedTests ",
-    "postinstall": "npm link chat-api"
+    "se_test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathIgnorePatterns=/node_modules/ --findRelatedTests "
   }
 }
