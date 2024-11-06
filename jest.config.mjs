@@ -5,8 +5,6 @@
 
 /** @type {import('jest').Config} */
 const config = {
-
-  preset: "ts-jest",
   testEnvironment: "node",
   transform: {
     "^.+.tsx?$": ["ts-jest", { useESM: true }],
@@ -16,8 +14,8 @@ const config = {
   },
   extensionsToTreatAsEsm: [".ts"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-  roots: ["src"],
-  modulePathIgnorePatterns: ["src/db/DataSource.test.ts"],
+  roots: ["tests"],
+  testPathIgnorePatterns: ["/node_modules/","/tests/WithSideEffect/"],
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
