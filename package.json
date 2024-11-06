@@ -10,7 +10,9 @@
     "reflect-metadata": "^0.2.2",
     "sequelize": "^6.37.3",
     "socket.io": "^4.7.5",
-    "tedious": "^18.6.1"
+    "socket.io-client": "^4.8.1",
+    "tedious": "^18.6.1",
+    "chat-api": "file:C:/Users/Pablo/Documents/Portafolio/chat-api/"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
