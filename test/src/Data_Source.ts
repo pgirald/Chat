@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { defineModels } from "../../src/db/models";
+import { defineModels } from "../../src/persistence/models";
 
 export const testingSequelize = new Sequelize({
 	dialect: "mssql",

@@ -17,7 +17,7 @@ import {
 	Ringtone,
 	Setting,
 	Subscription,
-} from "../../src/db/Entities";
+} from "../../src/persistence/Entities";
 import { unique } from "../../src/utils/general";
 import { stringify } from "flatted";
 

@@ -11,7 +11,7 @@ import {
 	Ringtone,
 	Setting,
 	Subscription,
-} from "../../src/db/Entities.js";
+} from "../../src/persistence/Entities.js";
 import {
 	Gen,
 	randElm,

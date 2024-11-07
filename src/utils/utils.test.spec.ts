@@ -5,7 +5,7 @@ import {
 	typedKeys,
 	randElm,
 	unique,
-} from "../../src/utils/general";
+} from "./general";
 
 test("Check Gen()", () => {
 	let gen = Gen(2);
