@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ContactsController } from './contacts.controller';
-import { PersistenceModule } from '../persistence/persistence.module';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
+import { FakePersistenceModule } from '../../test/src/persistence/fakePersistence.module';
 
 describe('ContactsController', () => {
   let controller: ContactsController;
@@ -10,7 +10,7 @@ describe('ContactsController', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PersistenceModule],
+      imports: [FakePersistenceModule],
       controllers: [ContactsController],
     }).compile();
 
