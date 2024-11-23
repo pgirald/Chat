@@ -8,6 +8,12 @@ import { INestApplication } from '@nestjs/common';
 import { events } from './interfaces/emitter';
 import { PrivateMessageDto } from './interfaces/events.dto';
 import { SocketIoEmitter } from './SocketIoEmitter.service';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from '../auth/auth.guard';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { SECRET, SECRET_EXPIRATION } from '../auth/constants';
+import { EMITTER } from './constants';
 
 const usernames = { user1: 'Maki', user2: 'Yuji', user3: 'Zukuna' };
 
@@ -24,9 +30,21 @@ describe('ChatGateway', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot(),
+        JwtModule.registerAsync({
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) => ({
+            secret: configService.get(SECRET),
+            signOptions: { expiresIn: configService.get(SECRET_EXPIRATION) },
+          }),
+        }),
+      ],
       providers: [
         ChatGateway,
-        { provide: 'EMITTER', useClass: SocketIoEmitter },
+        //AuthGuard,
+        { provide: EMITTER, useClass: SocketIoEmitter },
       ],
     }).compile();
 

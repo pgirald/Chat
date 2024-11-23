@@ -9,8 +9,12 @@ import {
 } from '@nestjs/websockets';
 import { Emitter, events } from './interfaces/emitter';
 import { PrivateMessageDto } from './interfaces/events.dto';
-import { Inject, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, OnApplicationBootstrap, UseGuards } from '@nestjs/common';
+import { AppValidationPipe } from '../common/AppValidation.pipe';
+import { AuthGuard } from '../auth/auth.guard';
+import { EMITTER } from './constants';
 
+//@UseGuards(AuthGuard)
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -22,7 +26,7 @@ export class ChatGateway
   @WebSocketServer()
   server;
 
-  @Inject('EMITTER')
+  @Inject(EMITTER)
   emitter: Emitter;
 
   onApplicationBootstrap() {
@@ -34,7 +38,9 @@ export class ChatGateway
   }
 
   @SubscribeMessage(events.privateMessage)
-  sendMessage(@MessageBody() privateMessage: PrivateMessageDto) {
+  sendMessage(
+    @MessageBody(AppValidationPipe) privateMessage: PrivateMessageDto,
+  ) {
     return this.emitter.sendMessage(privateMessage);
   }
 }
