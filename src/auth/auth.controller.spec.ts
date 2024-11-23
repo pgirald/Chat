@@ -30,7 +30,7 @@ describe('ContactsController', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({ envFilePath: 'secret.test.env' }),
         JwtModule.registerAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
