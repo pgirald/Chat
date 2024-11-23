@@ -1,24 +1,24 @@
-import { Sequelize } from "sequelize";
-import { Banned as _Banned } from "./Entities.js";
-import { defineModels } from "./models.js";
+import { Sequelize } from 'sequelize';
+import { Banned as _Banned } from './Entities';
+import { defineModels } from './models';
 
 export const sequelize = new Sequelize({
-	dialect: "mssql",
-	dialectOptions: {
-		server: "localhost",
-		options: {
-			database: "Chats",
-			port: 1433,
-			trustServerCertificate: true,
-		},
-		authentication: {
-			type: "default",
-			options: {
-				userName: "sa",
-				password: "MyServerDB",
-			},
-		},
-	},
+  dialect: 'mssql',
+  dialectOptions: {
+    server: 'localhost',
+    options: {
+      database: 'Chats',
+      port: 1433,
+      trustServerCertificate: true,
+    },
+    authentication: {
+      type: 'default',
+      options: {
+        userName: 'sa',
+        password: 'MyServerDB',
+      },
+    },
+  },
 });
 
 // export const sequelize = new Sequelize({
@@ -42,18 +42,20 @@ export const sequelize = new Sequelize({
 // 	pool: { max: 1, idle: Infinity, maxUses: Infinity },
 // });
 
-export const {
-	Roles,
-	Permissions,
-	Assignations,
-	Clients,
-	Banned,
-	Restrictions,
-	Locks,
-	Ringtones,
-	Settings,
-	Chats,
-	Subscriptions,
-	Messages,
-	Attachments,
-} = defineModels(sequelize);
+// export const {
+// 	Roles,
+// 	Permissions,
+// 	Assignations,
+// 	Clients,
+// 	Banned,
+// 	Restrictions,
+// 	Locks,
+// 	Ringtones,
+// 	Settings,
+// 	Chats,
+// 	Subscriptions,
+// 	Messages,
+// 	Attachments,
+// } = defineModels(sequelize);
+
+export const dbmodels = defineModels(sequelize);

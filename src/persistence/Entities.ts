@@ -10,8 +10,8 @@ export type Client = {
 	email: string;
 	password: string;
 	phone_number?: string;
-	first_name: string;
-	last_name: string;
+	first_name?: string;
+	last_name?: string;
 	about_me?: string;
 	role?: number;
 	img?: string;
