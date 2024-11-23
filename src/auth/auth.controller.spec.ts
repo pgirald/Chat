@@ -12,8 +12,9 @@ import * as fs from 'fs';
 import { Client } from '../../src/persistence/Entities';
 import { FakePersistenceModule } from '../../test/src/persistence/fakePersistence.module';
 import { defaultPassword, Tables } from '../../test/src/persistence/contants';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { LoggingFilter } from '../../test/src/common/logging.filter';
 // import { useContainer } from 'class-validator';
 // import { IsNewUsernameConstraint } from './validators/isNewUsername';
 // import { IsNewEmailConstraint } from './validators/isNewEmail';
@@ -46,6 +47,7 @@ describe('ContactsController', () => {
           provide: APP_GUARD,
           useClass: AuthGuard,
         },
+        { provide: APP_FILTER, useClass: LoggingFilter },
       ],
       controllers: [AuthController],
     }).compile();

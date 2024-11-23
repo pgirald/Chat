@@ -22,7 +22,7 @@ export const persistenceProviders = [
   {
     provide: MODELS,
     useFactory: async () => {
-      await testingSequelize.sync({ force: true});
+      await testingSequelize.sync({ force: true, logging: false });
       console.log('Tables created successfully.');
       const fakeData: object = JSON.parse(
         fs.readFileSync(fakesFile).toString(),
@@ -34,6 +34,7 @@ export const persistenceProviders = [
         );
         console.log(`[${tbl}] was populated`);
       }
+      console.log('All table were successfully populated');
       return { sequelize: testingSequelize, ...testingDbModels };
     },
   },
