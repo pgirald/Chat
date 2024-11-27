@@ -31,7 +31,7 @@ export class IsNewEmailConstraint implements ValidatorConstraintInterface {
 }
 
 export function IsNewEmail(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,

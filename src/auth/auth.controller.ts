@@ -13,6 +13,7 @@ import { Public } from './decorators/public.decorator';
 import { SignInDto, SignUpDto } from './auth.dto';
 import { AppValidationPipe } from '../common/AppValidation.pipe';
 import { CredentialsPipe } from './credentials.pipe';
+import { PROFILE } from './token_extractors/JwtExtractor';
 
 @Controller('auth')
 export class AuthController {
@@ -32,7 +33,7 @@ export class AuthController {
   }
 
   @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+  fetchProfile(@Request() request) {
+    return request[PROFILE];
   }
 }

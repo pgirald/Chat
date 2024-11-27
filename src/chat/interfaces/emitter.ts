@@ -6,7 +6,7 @@ export const events = {
 };
 
 export interface Emitter {
-  setServer: (server: any) => void;
+  initialize: (server: any) => void;
 
   handleConnection: (client: any) => Promise<any>;
 

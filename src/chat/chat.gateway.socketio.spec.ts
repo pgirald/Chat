@@ -1,4 +1,3 @@
-import { createServer } from 'http';
 import { AddressInfo } from 'net';
 import { Socket, io as ioc } from 'socket.io-client';
 import { jest } from '@jest/globals';
@@ -8,14 +7,23 @@ import { INestApplication } from '@nestjs/common';
 import { events } from './interfaces/emitter';
 import { PrivateMessageDto } from './interfaces/events.dto';
 import { SocketIoEmitter } from './SocketIoEmitter.service';
-import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from '../auth/auth.guard';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { SECRET, SECRET_EXPIRATION } from '../auth/constants';
 import { EMITTER } from './constants';
+import {
+  SocketIoJwtExtractor,
+  SocketIoJwtExtractorProvider,
+} from '../auth/token_extractors/socketIoJwtExtractor.service';
+import { config } from 'process';
+import { AppJwtAuthService } from '../common/AppJwtAuth.service';
 
-const usernames = { user1: 'Maki', user2: 'Yuji', user3: 'Zukuna' };
+const profiles = {
+  user1: { id: 1, username: 'Maki' },
+  user2: { id: 2, username: 'Yuji' },
+  user3: { id: 3, username: 'Zukuna' },
+};
 
 function waitFor(socket: Socket, event: string) {
   return new Promise((resolve) => {
@@ -27,11 +35,13 @@ describe('ChatGateway', () => {
   let gateway: ChatGateway;
   let app: INestApplication;
   let user1: Socket, user2: Socket, user3: Socket;
+  let jwtService: JwtService;
+  let configService: ConfigService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({ envFilePath: 'secret.test.env' }),
         JwtModule.registerAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
@@ -43,11 +53,14 @@ describe('ChatGateway', () => {
       ],
       providers: [
         ChatGateway,
-        //AuthGuard,
         { provide: EMITTER, useClass: SocketIoEmitter },
+        SocketIoJwtExtractor,
+        AppJwtAuthService,
       ],
     }).compile();
 
+    jwtService = module.get(JwtService);
+    configService = module.get(ConfigService);
     gateway = module.get(ChatGateway);
     app = module.createNestApplication();
     await app.init();
@@ -59,9 +72,21 @@ describe('ChatGateway', () => {
         user1 = ioc(`http://localhost:${port}`, { autoConnect: false });
         user2 = ioc(`http://localhost:${port}`, { autoConnect: false });
         user3 = ioc(`http://localhost:${port}`, { autoConnect: false });
-        user1.auth = { username: usernames.user1 };
-        user2.auth = { username: usernames.user2 };
-        user3.auth = { username: usernames.user3 };
+        user1.auth = {
+          token: jwtService.sign(profiles.user1, {
+            secret: configService.get(SECRET),
+          }),
+        };
+        user2.auth = {
+          token: jwtService.sign(profiles.user2, {
+            secret: configService.get(SECRET),
+          }),
+        };
+        user3.auth = {
+          token: jwtService.sign(profiles.user3, {
+            secret: configService.get(SECRET),
+          }),
+        };
         user1.connect();
         user2.connect();
         user3.connect();
@@ -73,16 +98,16 @@ describe('ChatGateway', () => {
       waitFor(user2, 'connect'),
       waitFor(user3, 'connect'),
     ]);
-  });
+  }, 60000);
 
   test('Chatting', async () => {
     const checkMsgsMatch = jest.fn((received: PrivateMessageDto) => {
       checkMsgs(received);
     });
     let sent = {
-      content: `Hello ${usernames.user2}!!`,
-      from: usernames.user1,
-      to: usernames.user2,
+      content: `Hello ${profiles.user2.username}!!`,
+      from: profiles.user1.id,
+      to: profiles.user2.id,
     };
     let promise: Promise<any>;
     user1.once(events.privateMessage, checkMsgsMatch);
@@ -94,9 +119,9 @@ describe('ChatGateway', () => {
     user1.emit(events.privateMessage, sent);
     await promise;
     sent = {
-      content: `Hello ${usernames.user1}, what happens?`,
-      from: usernames.user2,
-      to: usernames.user1,
+      content: `Hello ${profiles.user1.username}, what happens?`,
+      from: profiles.user2.id,
+      to: profiles.user1.id,
     };
     user1.once(events.privateMessage, checkMsgsMatch);
     user2.once(events.privateMessage, checkMsgsMatch);
@@ -116,5 +141,8 @@ describe('ChatGateway', () => {
 
   afterAll(async () => {
     await app.close();
+    user1.disconnect();
+    user2.disconnect();
+    user3.disconnect();
   });
 });

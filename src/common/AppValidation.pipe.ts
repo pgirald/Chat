@@ -13,7 +13,6 @@ export class AppValidationPipe implements PipeTransform {
   constructor() {
     this.validationPipe = new ValidationPipe({
       exceptionFactory: (errors) => {
-        
         const result = errors.reduce((errorMap, error) => {
           errorMap[error.property] =
             error.constraints[Object.keys(error.constraints)[0]];

@@ -16,7 +16,6 @@ export class IsNewUsernameConstraint implements ValidatorConstraintInterface {
   constructor(@Inject(MODELS) private models: Models) {}
 
   async validate(username: any, args: ValidationArguments) {
-    
     if (typeof username !== 'string') {
       return false;
     }
@@ -34,7 +33,7 @@ export class IsNewUsernameConstraint implements ValidatorConstraintInterface {
 }
 
 export function IsNewUsername(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
