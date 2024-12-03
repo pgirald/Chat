@@ -9,28 +9,40 @@ import {
 } from '@nestjs/websockets';
 import { Emitter, events } from './interfaces/emitter';
 import { PrivateMessageDto } from './interfaces/events.dto';
-import { Inject, OnApplicationBootstrap, UseGuards } from '@nestjs/common';
+import {
+  ExecutionContext,
+  Inject,
+  OnApplicationBootstrap,
+  ParseEnumPipe,
+  UseGuards,
+  UseInterceptors,
+  UsePipes,
+} from '@nestjs/common';
 import { AppValidationPipe } from '../common/AppValidation.pipe';
 import { AuthGuard } from '../auth/auth.guard';
-import { EMITTER } from './constants';
+import { DATA, EMITTER } from './constants';
+import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
+import { LanguageGuard } from '../common/language/language.Guard';
 
-//@UseGuards(AuthGuard)
+//@UseInterceptors(TestInterceptor)
+//TODO: Only the next application can consume the gateway
+@UseGuards(LanguageGuard)
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
 })
-export class ChatGateway
-  implements OnGatewayConnection, OnApplicationBootstrap
-{
+export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server;
 
   @Inject(EMITTER)
   emitter: Emitter;
 
+  context: ExecutionContext;
+
   onApplicationBootstrap() {
-    this.emitter.setServer(this.server);
+    this.emitter.initialize(this.server);
   }
 
   handleConnection(client, ...args: any[]) {
@@ -39,7 +51,8 @@ export class ChatGateway
 
   @SubscribeMessage(events.privateMessage)
   sendMessage(
-    @MessageBody(AppValidationPipe) privateMessage: PrivateMessageDto,
+    @MessageBody(DATA, AppValidationPipe)
+    privateMessage: PrivateMessageDto,
   ) {
     return this.emitter.sendMessage(privateMessage);
   }

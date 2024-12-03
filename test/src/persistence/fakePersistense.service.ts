@@ -4,24 +4,28 @@ import {
   MODELS,
   TablesNames,
 } from '../../../src/persistence/constants';
-import { ModelStatic } from 'sequelize';
+import { ModelStatic, Sequelize } from 'sequelize';
 import * as fs from 'fs';
 import { fakesFile } from './contants';
 import { testingDbModels, testingSequelize } from './Data_Source';
+import { sequelize } from 'src/persistence/source';
 
-@Injectable()
-class PersistenceService implements OnApplicationShutdown {
-  constructor(@Inject(MODELS) private readonly models: Models) {}
+// @Injectable()
+// class PersistenceService implements OnApplicationShutdown {
+//   constructor(@Inject(MODELS) private readonly models: Models) {}
 
-  async onApplicationShutdown(signal?: string) {
-    await this.models.sequelize.close();
-  }
-}
+//   async onApplicationShutdown(signal?: string) {
+//     await this.models.sequelize.close();
+//   }
+// }
 
 export const persistenceProviders = [
   {
     provide: MODELS,
     useFactory: async () => {
+      if (_models) {
+        return _models;
+      }
       await testingSequelize.sync({ force: true, logging: false });
       console.log('Tables created successfully.');
       const fakeData: object = JSON.parse(
@@ -35,8 +39,11 @@ export const persistenceProviders = [
         console.log(`[${tbl}] was populated`);
       }
       console.log('All table were successfully populated');
-      return { sequelize: testingSequelize, ...testingDbModels };
+      _models = { sequelize: testingSequelize, ...testingDbModels };
+      return _models;
     },
   },
-  PersistenceService,
+  //PersistenceService,
 ];
+
+let _models: Models | undefined;

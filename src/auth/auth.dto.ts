@@ -13,6 +13,7 @@ import {
 } from './validators/isNewUsername';
 import { IsNewEmail, IsNewEmailConstraint } from './validators/isNewEmail';
 import { Type } from 'class-transformer';
+import { IsUsername } from './validators/isUsername';
 
 export class SignInDto {
   constructor(private prop = true) {}
@@ -24,10 +25,8 @@ export class SignInDto {
 }
 
 export class SignUpDto {
-  @Matches(/^[A-Za-z]([_.-]?[A-Za-z0-9]){7,29}$/)
-  // @IsNewUsername({
-  //   message: 'The given username is already registerd',
-  // })
+  
+  @IsUsername()
   username: string;
 
   @IsEmail()

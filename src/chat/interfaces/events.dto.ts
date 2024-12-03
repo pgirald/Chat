@@ -1,12 +1,12 @@
-import { IsString, IsInt } from 'class-validator';
+import { IsString, IsInt, IsIn } from 'class-validator';
 
 export class PrivateMessageDto {
   @IsString()
   content: string;
 
-  @IsString()
-  from: string;
+  @IsInt()
+  from: number;
 
-  @IsString()
-  to: string;
+  @IsInt()
+  to: number;
 }

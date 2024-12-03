@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SECRET, SECRET_EXPIRATION } from './constants';
 import { MODELS, Models } from '../persistence/constants';
@@ -15,6 +15,18 @@ import { defaultPassword, Tables } from '../../test/src/persistence/contants';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { LoggingFilter } from '../../test/src/common/logging.filter';
+import {
+  HttpJwtExtractor,
+  HttpJwtExtractorProvider,
+} from './token_extractors/httpJwtExtractor.service';
+import { Profile } from './token_extractors/JwtExtractor';
+import { AppJwtAuthService } from '../common/AppJwtAuth.service';
+import { LanguageService } from '../common/language/language.service';
+import {
+  HttpLangExtractor,
+  HttpLangExtractorProvider,
+} from '../common/language/langExtractors/httpLangExtractor';
+import { LanguageGuard } from '../common/language/language.Guard';
 // import { useContainer } from 'class-validator';
 // import { IsNewUsernameConstraint } from './validators/isNewUsername';
 // import { IsNewEmailConstraint } from './validators/isNewEmail';
@@ -23,9 +35,11 @@ describe('ContactsController', () => {
   let authController: AuthController;
   let models: Models;
   let app: INestApplication;
-  let fakeData: Tables = JSON.parse(
+  const fakeData: Tables = JSON.parse(
     fs.readFileSync('test/fakeData.json').toString(),
   );
+  let jwtService: JwtService;
+  let config: ConfigService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -45,13 +59,23 @@ describe('ContactsController', () => {
         AuthService /*IsNewUsernameConstraint, IsNewEmailConstraint*/,
         {
           provide: APP_GUARD,
+          useClass: LanguageGuard,
+        },
+        {
+          provide: APP_GUARD,
           useClass: AuthGuard,
         },
         { provide: APP_FILTER, useClass: LoggingFilter },
+        AppJwtAuthService,
+        HttpJwtExtractor,
+        LanguageService,
+        HttpLangExtractorProvider,
       ],
       controllers: [AuthController],
     }).compile();
+    config = module.get(ConfigService);
     authController = module.get(AuthController);
+    jwtService = module.get(JwtService);
     models = module.get(MODELS);
     app = module.createNestApplication();
     app.enableShutdownHooks();
@@ -89,6 +113,7 @@ describe('ContactsController', () => {
     }) => {
       const res = await request(app.getHttpServer())
         .post('/auth/signUp')
+        .set('accept-language', 'es')
         .send(signUpDto);
       if (!res.error) {
         await models.Clients.destroy({ where: { email: signUpDto.email } });
@@ -133,6 +158,54 @@ describe('ContactsController', () => {
         expect(Object.keys(res.body).sort()).toEqual(erroneousProps.sort());
       }
       expect(res.status).toBe(expectedStatus);
+    },
+  );
+
+  it.each`
+    profile                                                                              | token              | expiration_sg | expectedStatus | expectedError
+    ${undefined}                                                                         | ${'invalid_token'} | ${3600}       | ${401}         | ${'jwt malformed'}
+    ${{ id: fakeData.Clients[0].id, username: fakeData.Clients[0].username } as Profile} | ${undefined}       | ${3600}       | ${200}         | ${undefined}
+    ${{ id: fakeData.Clients[0].id, username: fakeData.Clients[0].username } as Profile} | ${undefined}       | ${0}          | ${401}         | ${'jwt expired'}
+  `(
+    'should fetch profile',
+    async ({
+      token,
+      expiration_sg,
+      profile,
+      expectedStatus,
+      expectedError,
+    }: {
+      token?: string;
+      expiration_sg: number;
+      profile?: Profile;
+      expectedStatus: number;
+      expectedError: string;
+    }) => {
+      let jwt: string;
+      if (profile) {
+        jwt = await jwtService.signAsync(
+          {
+            id: profile.id,
+            username: profile.username,
+          } as Profile,
+          {
+            secret: config.get(SECRET),
+            expiresIn: expiration_sg,
+          },
+        );
+      } else {
+        jwt = token || 'not specified';
+      }
+      const res = await request(app.getHttpServer())
+        .get('/auth/profile')
+        .set('Authorization', `Bearer ${jwt}`);
+      expect(res.status).toBe(expectedStatus);
+      if (expectedError) {
+        expect(res.body.message).toBe(expectedError);
+      } else if (profile) {
+        expect(res.body.username).toBe(profile.username);
+        expect(res.body.id).toBe(profile.id);
+      }
     },
   );
 
