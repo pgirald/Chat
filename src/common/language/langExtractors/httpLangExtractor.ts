@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
 import { Language } from '../interfaces';
-import { LangExtractor } from './LangExtractor';
+import { LangExtractor } from './langExtractor';
 import { Request } from 'express';
 
 export class HttpLangExtractor implements LangExtractor {

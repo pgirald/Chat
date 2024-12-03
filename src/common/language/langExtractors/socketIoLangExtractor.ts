@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
 import { Language } from '../interfaces';
-import { LangExtractor } from './LangExtractor';
+import { LangExtractor } from './langExtractor';
 
 export class SocketIoLangExtractor implements LangExtractor {
   extract(context: ExecutionContext): Language | undefined {

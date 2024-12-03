@@ -1,7 +1,7 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Language } from './interfaces';
 import { english } from './constants';
-import { LangExtractor } from './langExtractors/LangExtractor';
+import { LangExtractor } from './langExtractors/langExtractor';
 
 @Injectable()
 export class LanguageService {
