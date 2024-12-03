@@ -6,10 +6,14 @@ import { Emitter, events } from './interfaces/emitter';
 import { Profile, PROFILE } from '../auth/token_extractors/JwtExtractor';
 import { AppJwtAuthService } from '../common/AppJwtAuth.service';
 import { SocketIoJwtExtractor } from '../auth/token_extractors/socketIoJwtExtractor.service';
+import { LanguageService } from '../common/language/language.service';
 
 @Injectable()
 export class SocketIoEmitter implements Emitter {
   private server: Server;
+
+  @Inject(LanguageService)
+  private readonly langProvider: LanguageService;
 
   @Inject(AppJwtAuthService)
   private readonly authService: AppJwtAuthService;
@@ -18,12 +22,6 @@ export class SocketIoEmitter implements Emitter {
   private readonly extractor: SocketIoJwtExtractor;
 
   initialize(server: Server) {
-    // if (!(server instanceof Server)) {
-    //   throw new Error(
-    //     `In order to use ${SocketIoEmitter.name}, the provided server
-    //     must be an instance of Socket.io ${Server.name}`,
-    //   );
-    // }
     server.use(this.authenticate);
     this.server = server;
   }

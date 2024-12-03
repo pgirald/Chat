@@ -9,10 +9,14 @@ import {
 import { SignUpDto } from './auth.dto';
 import { Op } from 'sequelize';
 import { Models, MODELS } from '../persistence/constants';
+import { LanguageService } from '../common/language/language.service';
 
 @Injectable()
 export class CredentialsPipe implements PipeTransform {
-  constructor(@Inject(MODELS) private models: Models) {}
+  constructor(
+    @Inject(MODELS) private readonly models: Models,
+    private readonly langProvider: LanguageService,
+  ) {}
 
   async transform(
     credentials: { email: string; username: string },
@@ -40,21 +44,22 @@ export class CredentialsPipe implements PipeTransform {
       return credentials;
     }
 
-    const erroneousFiels: { email?: string; username?: string } = {};
+    const erroneousFields: { email?: string; username?: string } = {};
 
     if (
       user.dataValues.email.toLowerCase() === credentials.email.toLowerCase()
     ) {
-      erroneousFiels.email = 'The given email is aready registered.';
+      erroneousFields.email = this.langProvider.language.emailNotAvailable;
     }
 
     if (
       user.dataValues.username.toLowerCase() ===
       credentials.username.toLowerCase()
     ) {
-      erroneousFiels.username = 'The given username is aready registered.';
+      erroneousFields.username =
+        this.langProvider.language.usernameNotAvailable;
     }
 
-    throw new BadRequestException(erroneousFiels);
+    throw new BadRequestException(erroneousFields);
   }
 }

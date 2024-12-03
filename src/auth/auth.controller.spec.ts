@@ -21,6 +21,12 @@ import {
 } from './token_extractors/httpJwtExtractor.service';
 import { Profile } from './token_extractors/JwtExtractor';
 import { AppJwtAuthService } from '../common/AppJwtAuth.service';
+import { LanguageService } from '../common/language/language.service';
+import {
+  HttpLangExtractor,
+  HttpLangExtractorProvider,
+} from '../common/language/langExtractors/httpLangExtractor';
+import { LanguageGuard } from '../common/language/language.Guard';
 // import { useContainer } from 'class-validator';
 // import { IsNewUsernameConstraint } from './validators/isNewUsername';
 // import { IsNewEmailConstraint } from './validators/isNewEmail';
@@ -53,11 +59,17 @@ describe('ContactsController', () => {
         AuthService /*IsNewUsernameConstraint, IsNewEmailConstraint*/,
         {
           provide: APP_GUARD,
+          useClass: LanguageGuard,
+        },
+        {
+          provide: APP_GUARD,
           useClass: AuthGuard,
         },
         { provide: APP_FILTER, useClass: LoggingFilter },
         AppJwtAuthService,
         HttpJwtExtractor,
+        LanguageService,
+        HttpLangExtractorProvider,
       ],
       controllers: [AuthController],
     }).compile();
@@ -101,6 +113,7 @@ describe('ContactsController', () => {
     }) => {
       const res = await request(app.getHttpServer())
         .post('/auth/signUp')
+        .set('accept-language', 'es')
         .send(signUpDto);
       if (!res.error) {
         await models.Clients.destroy({ where: { email: signUpDto.email } });

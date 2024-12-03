@@ -18,18 +18,15 @@ import {
 } from '../auth/token_extractors/socketIoJwtExtractor.service';
 import { config } from 'process';
 import { AppJwtAuthService } from '../common/AppJwtAuth.service';
+import { waitFor } from '../../test/utils/socketio/events';
+import { LanguageService } from '../common/language/language.service';
+import { IoLangExtractorProvider } from '../common/language/langExtractors/socketIoLangExtractor';
 
 const profiles = {
   user1: { id: 1, username: 'Maki' },
   user2: { id: 2, username: 'Yuji' },
   user3: { id: 3, username: 'Zukuna' },
 };
-
-function waitFor(socket: Socket, event: string) {
-  return new Promise((resolve) => {
-    socket.once(event, resolve);
-  });
-}
 
 describe('ChatGateway', () => {
   let gateway: ChatGateway;
@@ -56,6 +53,8 @@ describe('ChatGateway', () => {
         { provide: EMITTER, useClass: SocketIoEmitter },
         SocketIoJwtExtractor,
         AppJwtAuthService,
+        LanguageService,
+        IoLangExtractorProvider,
       ],
     }).compile();
 
@@ -110,26 +109,22 @@ describe('ChatGateway', () => {
       to: profiles.user2.id,
     };
     let promise: Promise<any>;
-    user1.once(events.privateMessage, checkMsgsMatch);
-    user2.once(events.privateMessage, checkMsgsMatch);
     promise = Promise.all([
-      waitFor(user1, events.privateMessage),
-      waitFor(user2, events.privateMessage),
+      waitFor(user1, events.privateMessage, checkMsgsMatch),
+      waitFor(user2, events.privateMessage, checkMsgsMatch),
     ]);
-    user1.emit(events.privateMessage, sent);
+    user1.emit(events.privateMessage, { data: sent, lang: 'em' });
     await promise;
     sent = {
       content: `Hello ${profiles.user1.username}, what happens?`,
       from: profiles.user2.id,
       to: profiles.user1.id,
     };
-    user1.once(events.privateMessage, checkMsgsMatch);
-    user2.once(events.privateMessage, checkMsgsMatch);
     promise = Promise.all([
-      waitFor(user1, events.privateMessage),
-      waitFor(user2, events.privateMessage),
+      waitFor(user1, events.privateMessage, checkMsgsMatch),
+      waitFor(user2, events.privateMessage, checkMsgsMatch),
     ]);
-    user2.emit(events.privateMessage, sent);
+    user2.emit(events.privateMessage, { data: sent, lang: 'em' });
     await promise;
 
     expect(checkMsgsMatch.mock.calls).toHaveLength(4);
