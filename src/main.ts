@@ -9,20 +9,11 @@ import {
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { SocketIoEmitter } from './chat/SocketIoEmitter.service';
 import { useContainer } from 'class-validator';
-
-interface GatewayDeps {
-  emitterClass: new () => Emitter;
-  adapter: new (INestApplicationContext) => WebSocketAdapter;
-}
-
-const gatewayDeps: GatewayDeps = {
-  emitterClass: SocketIoEmitter,
-  adapter: IoAdapter,
-};
+import { gatewayDeps } from './gateway';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  //useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.useWebSocketAdapter(new gatewayDeps.adapter(app));
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -1,19 +1,21 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ChatGateway } from './chat/chat.gateway';
-import { ContactsController } from './contacts/contacts.controller';
-import { persistenceProviders } from './persistence/persistence.service';
-import { PersistenceModule } from './persistence/persistence.module';
-import { LanguageController } from '../test/src/common/language/language.controller';
-import { LanguageGateway } from '../test/src/common/language/language.gateway';
-import * as process from 'process';
-
-process.env;
+import { Module, ModuleMetadata } from '@nestjs/common';
+import { LanguageService } from './common/language/language.service';
+import { HttpLangExtractorProvider } from './common/language/langExtractors/httpLangExtractor';
+import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
+import { ContactsModule } from './contacts/contacts.module';
+import { APP_GUARD } from '@nestjs/core';
+import { LanguageGuard } from './common/language/language.Guard';
+import { HttpLanguageModule } from './common/language/httpLanguage.module';
+import { AppValidationPipe } from './common/AppValidation.pipe';
 
 @Module({
-  imports: [PersistenceModule],
-  controllers: [AppController, ContactsController, LanguageController],
-  providers: [AppService, ChatGateway, LanguageGateway],
+  imports: [
+    { module: HttpLanguageModule, global: true },
+    AuthModule,
+    ChatModule,
+    ContactsModule,
+  ],
+  providers: [AppValidationPipe],
 })
 export class AppModule {}

@@ -10,23 +10,13 @@ import * as request from 'supertest';
 import { SignInDto, SignUpDto } from './auth.dto';
 import * as fs from 'fs';
 import { Client } from '../../src/persistence/Entities';
-import { FakePersistenceModule } from '../../test/src/persistence/fakePersistence.module';
 import { defaultPassword, Tables } from '../../test/src/persistence/contants';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-import { LoggingFilter } from '../../test/src/common/logging.filter';
-import {
-  HttpJwtExtractor,
-  HttpJwtExtractorProvider,
-} from './token_extractors/httpJwtExtractor.service';
+import { ConsoleLogFilter } from '../../test/src/common/consoleLog.filter';
+import { HttpJwtExtractor } from './token_extractors/httpJwtExtractor.service';
 import { Profile } from './token_extractors/JwtExtractor';
-import { AppJwtAuthService } from '../common/AppJwtAuth.service';
-import { LanguageService } from '../common/language/language.service';
-import {
-  HttpLangExtractor,
-  HttpLangExtractorProvider,
-} from '../common/language/langExtractors/httpLangExtractor';
-import { LanguageGuard } from '../common/language/language.Guard';
+import { getTestingApp } from '../../test/src/common/testingApp';
 // import { useContainer } from 'class-validator';
 // import { IsNewUsernameConstraint } from './validators/isNewUsername';
 // import { IsNewEmailConstraint } from './validators/isNewEmail';
@@ -42,42 +32,16 @@ describe('ContactsController', () => {
   let config: ConfigService;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ envFilePath: 'secret.test.env' }),
-        JwtModule.registerAsync({
-          imports: [ConfigModule],
-          inject: [ConfigService],
-          useFactory: async (configService: ConfigService) => ({
-            secret: configService.get(SECRET),
-            signOptions: { expiresIn: configService.get(SECRET_EXPIRATION) },
-          }),
-        }),
-        FakePersistenceModule,
-      ],
-      providers: [
-        AuthService /*IsNewUsernameConstraint, IsNewEmailConstraint*/,
-        {
-          provide: APP_GUARD,
-          useClass: LanguageGuard,
-        },
-        {
-          provide: APP_GUARD,
-          useClass: AuthGuard,
-        },
-        { provide: APP_FILTER, useClass: LoggingFilter },
-        AppJwtAuthService,
-        HttpJwtExtractor,
-        LanguageService,
-        HttpLangExtractorProvider,
-      ],
-      controllers: [AuthController],
-    }).compile();
-    config = module.get(ConfigService);
-    authController = module.get(AuthController);
-    jwtService = module.get(JwtService);
-    models = module.get(MODELS);
-    app = module.createNestApplication();
+    let appModule: TestingModule;
+    [appModule, app] = await getTestingApp({
+      providers: [{ provide: APP_FILTER, useClass: ConsoleLogFilter }],
+    });
+
+    config = appModule.get(ConfigService);
+    authController = appModule.get(AuthController);
+    jwtService = appModule.get(JwtService);
+    models = appModule.get(MODELS);
+    app = appModule.createNestApplication();
     app.enableShutdownHooks();
     //useContainer(module, { fallbackOnErrors: true });
     await app.init();

@@ -1,9 +1,13 @@
 import { Sequelize } from 'sequelize';
-import { dbmodels } from './source';
+import { defineModels } from './models';
 
 export const MODELS = 'MODELS';
 
-export type Models = typeof dbmodels & {
+export const FREER = 'FREER';
+
+export const SEQUELIZE = 'sequelize';
+
+export type Models = ReturnType<typeof defineModels> & {
   sequelize: Sequelize;
 };
 
