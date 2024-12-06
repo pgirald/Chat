@@ -1,40 +1,24 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as process from 'process';
-import { SECRET, SECRET_EXPIRATION } from './constants';
+import { PersistenceModule } from '../persistence/persistence.module';
+import { AppJwtAuthService } from '../common/AppJwtAuth.service';
+import { HttpJwtExtractor } from './token_extractors/httpJwtExtractor.service';
+import { TablesNames } from '../persistence/constants';
+import { AppJwtModule } from '../common/appJwt.module';
 
-export const AuthModuleMembers = {
-  imports: [
-    // ConfigModule.forRoot(),
-    // JwtModule.registerAsync({
-    //   imports: [ConfigModule],
-    //   inject: [ConfigService],
-    //   useFactory: async (configService: ConfigService) => ({
-    //     secret: configService.get(SECRET),
-    //     signOptions: { expiresIn: configService.get(SECRET_EXPIRATION) },
-    //   }),
-    // }),
-    JwtModule.register({
-      global: true,
-      secret: 'jwtConstants.secret',
-      signOptions: { expiresIn: '60s' },
-    }),
-  ],
+@Module({
+  imports: [PersistenceModule.forRoot([TablesNames.Clients]), AppJwtModule],
   providers: [
     AuthService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    HttpJwtExtractor,
   ],
   controllers: [AuthController],
-  exports: [AuthService],
-};
-
-@Module(AuthModuleMembers)
+})
 export class AuthModule {}

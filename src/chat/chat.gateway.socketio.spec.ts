@@ -21,6 +21,7 @@ import { AppJwtAuthService } from '../common/AppJwtAuth.service';
 import { waitFor } from '../../test/utils/socketio/events';
 import { LanguageService } from '../common/language/language.service';
 import { IoLangExtractorProvider } from '../common/language/langExtractors/socketIoLangExtractor';
+import { getTestingApp } from '../../test/src/common/testingApp';
 
 const profiles = {
   user1: { id: 1, username: 'Maki' },
@@ -36,33 +37,12 @@ describe('ChatGateway', () => {
   let configService: ConfigService;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ envFilePath: 'secret.test.env' }),
-        JwtModule.registerAsync({
-          imports: [ConfigModule],
-          inject: [ConfigService],
-          useFactory: async (configService: ConfigService) => ({
-            secret: configService.get(SECRET),
-            signOptions: { expiresIn: configService.get(SECRET_EXPIRATION) },
-          }),
-        }),
-      ],
-      providers: [
-        ChatGateway,
-        { provide: EMITTER, useClass: SocketIoEmitter },
-        SocketIoJwtExtractor,
-        AppJwtAuthService,
-        LanguageService,
-        IoLangExtractorProvider,
-      ],
-    }).compile();
+    let module: TestingModule;
+    [module, app] = await getTestingApp();
 
     jwtService = module.get(JwtService);
     configService = module.get(ConfigService);
     gateway = module.get(ChatGateway);
-    app = module.createNestApplication();
-    await app.init();
     const httpServer = app.getHttpServer();
 
     await new Promise((resolve) => {
@@ -97,6 +77,7 @@ describe('ChatGateway', () => {
       waitFor(user2, 'connect'),
       waitFor(user3, 'connect'),
     ]);
+    console.log('done');
   }, 60000);
 
   test('Chatting', async () => {

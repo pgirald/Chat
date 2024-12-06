@@ -1,9 +1,18 @@
-import { Module } from '@nestjs/common';
-import { MODELS } from '../../../src/persistence/constants';
-import { persistenceProviders } from './fakePersistense.service';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { fakePersistenceProviders } from './fakePersistenceProviders';
+import { Models, MODELS } from '../../../src/persistence/constants';
 
-@Module({
-  providers: [...persistenceProviders],
-  exports: [MODELS],
-})
-export class FakePersistenceModule {}
+@Module({})
+export class FakePersistenceModule {
+  static forRoot(models: (keyof Models)[]): DynamicModule {
+    return {
+      module: FakePersistenceModule,
+      providers: [...fakePersistenceProviders],
+      ...models.map<Provider>((model) => ({
+        provide: model,
+        inject: [MODELS],
+        useFactory: (models: Models) => models[model],
+      })),
+    };
+  }
+}

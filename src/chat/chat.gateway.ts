@@ -1,35 +1,21 @@
 import {
-  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Emitter, events } from './interfaces/emitter';
 import { PrivateMessageDto } from './interfaces/events.dto';
-import {
-  ExecutionContext,
-  Inject,
-  OnApplicationBootstrap,
-  ParseEnumPipe,
-  UseGuards,
-  UseInterceptors,
-  UsePipes,
-} from '@nestjs/common';
+import { ExecutionContext, Inject, UseGuards } from '@nestjs/common';
 import { AppValidationPipe } from '../common/AppValidation.pipe';
-import { AuthGuard } from '../auth/auth.guard';
 import { DATA, EMITTER } from './constants';
-import { ExecutionContextHost } from '@nestjs/core/helpers/execution-context-host';
 import { LanguageGuard } from '../common/language/language.Guard';
 
-//@UseInterceptors(TestInterceptor)
-//TODO: Only the next application can consume the gateway
 @UseGuards(LanguageGuard)
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: '*', //TODO: Only the next application can consume the gateway
   },
 })
 export class ChatGateway implements OnGatewayConnection {

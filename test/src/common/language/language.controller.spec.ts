@@ -8,21 +8,16 @@ import { english, spanish } from '../../../../src/common/language/constants';
 import { after } from 'node:test';
 import { LangMiddleware } from './lang.middleware';
 import { NextFunction } from 'express';
+import { getTestingApp } from '../testingApp';
 
 describe('AppController', () => {
   let languageController: LanguageController;
   let app: INestApplication;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [LanguageController],
-      providers: [LanguageService, HttpLangExtractorProvider],
-    }).compile();
-
-    languageController = module.get(LanguageController);
-
-    app = module.createNestApplication();
-    await app.init();
+    let appModule: TestingModule;
+    [appModule, app] = await getTestingApp({ controllers: [LanguageController] });
+    languageController = appModule.get(LanguageController);
   });
 
   test('should be defined', () => {

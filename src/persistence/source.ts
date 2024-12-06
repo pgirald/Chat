@@ -1,25 +1,26 @@
 import { Sequelize } from 'sequelize';
 import { Banned as _Banned } from './Entities';
-import { defineModels } from './models';
 
-export const sequelize = new Sequelize({
-  dialect: 'mssql',
-  dialectOptions: {
-    server: 'localhost',
-    options: {
-      database: 'Chats',
-      port: 1433,
-      trustServerCertificate: true,
-    },
-    authentication: {
-      type: 'default',
+export function newMssqlSequelize() {
+  return new Sequelize({
+    dialect: 'mssql',
+    dialectOptions: {
+      server: 'localhost',
       options: {
-        userName: 'sa',
-        password: 'MyServerDB',
+        database: 'Chats',
+        port: 1433,
+        trustServerCertificate: true,
+      },
+      authentication: {
+        type: 'default',
+        options: {
+          userName: 'sa',
+          password: 'MyServerDB',
+        },
       },
     },
-  },
-});
+  });
+}
 
 // export const sequelize = new Sequelize({
 // 	dialect: MsSqlDialect,
@@ -58,4 +59,4 @@ export const sequelize = new Sequelize({
 // 	Attachments,
 // } = defineModels(sequelize);
 
-export const dbmodels = defineModels(sequelize);
+// export const dbmodels = defineModels(sequelize);

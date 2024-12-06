@@ -2,22 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ContactsController } from './contacts.controller';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { FakePersistenceModule } from '../../test/src/persistence/fakePersistence.module';
+import { getTestingApp } from '../../test/src/common/testingApp';
 
 describe('ContactsController', () => {
   let controller: ContactsController;
   let app: INestApplication;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [FakePersistenceModule],
-      controllers: [ContactsController],
-    }).compile();
-
-    controller = module.get<ContactsController>(ContactsController);
-    app = module.createNestApplication();
-    app.enableShutdownHooks();
-    await app.init();
+    let appModule: TestingModule;
+    [appModule, app] = await getTestingApp();
+    controller = appModule.get(ContactsController);
   });
 
   it('should be defined', async () => {

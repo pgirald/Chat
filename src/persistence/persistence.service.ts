@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { dbmodels, sequelize } from './source';
-import { Models, MODELS } from './constants';
+import { FREER, Models, MODELS } from './constants';
 import {
   INestApplication,
   Inject,
@@ -16,14 +15,3 @@ export class PersistenceService implements OnApplicationShutdown {
     await this.models.sequelize.close();
   }
 }
-
-export const persistenceProviders = [
-  {
-    provide: MODELS,
-    useFactory: async () => {
-      await sequelize.authenticate();
-      return { sequelize, ...dbmodels };
-    },
-  },
-  PersistenceService,
-];

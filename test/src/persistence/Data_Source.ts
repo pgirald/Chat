@@ -21,9 +21,11 @@ import { defineModels } from '../../../src/persistence/models';
 //   },
 // });
 
-export const testingSequelize = new Sequelize('sqlite::memory:', {
-  logging: false,
-});
+export function newMemorySqliteSequelize() {
+  return new Sequelize('sqlite::memory:', {
+    logging: false,
+  });
+}
 
 // export const {
 // 	Roles,
@@ -40,5 +42,3 @@ export const testingSequelize = new Sequelize('sqlite::memory:', {
 // 	Messages,
 // 	Attachments,
 // } = defineModels(testingSequelize);
-
-export const testingDbModels = defineModels(testingSequelize);

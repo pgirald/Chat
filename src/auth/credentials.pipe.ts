@@ -8,13 +8,13 @@ import {
 } from '@nestjs/common';
 import { SignUpDto } from './auth.dto';
 import { Op } from 'sequelize';
-import { Models, MODELS } from '../persistence/constants';
+import { Models, MODELS, TablesNames } from '../persistence/constants';
 import { LanguageService } from '../common/language/language.service';
 
 @Injectable()
 export class CredentialsPipe implements PipeTransform {
   constructor(
-    @Inject(MODELS) private readonly models: Models,
+    @Inject(TablesNames.Clients) private readonly clients: Models['Clients'],
     private readonly langProvider: LanguageService,
   ) {}
 
@@ -31,7 +31,7 @@ export class CredentialsPipe implements PipeTransform {
     }
     let user;
     try {
-      user = await this.models.Clients.findOne({
+      user = await this.clients.findOne({
         where: {
           [Op.or]: { email: credentials.email, username: credentials.username },
         },
