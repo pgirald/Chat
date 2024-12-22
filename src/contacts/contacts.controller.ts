@@ -6,18 +6,16 @@ import {
   Request,
   ValidationPipe,
 } from '@nestjs/common';
-import { Attributes, Op, WhereOptions } from 'sequelize';
+import { Op } from 'sequelize';
 import {
   ASSIGNATIONS,
   Models,
-  PERMISSIONS,
   RESTRICTED_LOCKS,
   TablesNames,
 } from '../persistence/constants';
 import { ContactsPaginationDto } from './contacts.dto';
 import { CrudService } from '../common/crud/crud.services';
 import { Contact } from 'chat-api';
-import { ET } from '../persistence/Interfaces';
 import {
   Assignation,
   Client,
