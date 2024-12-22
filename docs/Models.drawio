@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36" version="24.7.10" pages="3">
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8" pages="3">
   <diagram name="Domain" id="v7h3B2R7u-ejRfZrK_gy">
     <mxGraphModel dx="577" dy="309" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -73,7 +73,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="fXf1ylSkw82c1iPEPjTq" name="DB">
-    <mxGraphModel dx="1554" dy="1506" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1688" dy="1607" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -210,7 +210,7 @@
         <mxCell id="gm0VWfvs7BgWa-uThleS-20" value="Content" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="gm0VWfvs7BgWa-uThleS-18" vertex="1">
           <mxGeometry y="60" width="140" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="ih4wPYIf7vpTkQK064tE-1" value="receptionTime" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="gm0VWfvs7BgWa-uThleS-18">
+        <mxCell id="ih4wPYIf7vpTkQK064tE-1" value="receptionTime" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="gm0VWfvs7BgWa-uThleS-18" vertex="1">
           <mxGeometry y="90" width="140" height="30" as="geometry" />
         </mxCell>
         <mxCell id="gm0VWfvs7BgWa-uThleS-26" value="Subscriptions" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -269,42 +269,19 @@
         <mxCell id="BnUGxDvCQAQGct8PmS8K-26" value="Name" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="BnUGxDvCQAQGct8PmS8K-24" vertex="1">
           <mxGeometry y="60" width="140" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="BnUGxDvCQAQGct8PmS8K-59" value="has(id:role)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BnUGxDvCQAQGct8PmS8K-32" target="BnUGxDvCQAQGct8PmS8K-50" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="BnUGxDvCQAQGct8PmS8K-62" value="Is given to(id:role)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BnUGxDvCQAQGct8PmS8K-32" target="gm0VWfvs7BgWa-uThleS-1" edge="1">
+        <mxCell id="BnUGxDvCQAQGct8PmS8K-59" value="has(id:role)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="gm0VWfvs7BgWa-uThleS-1" target="BnUGxDvCQAQGct8PmS8K-50" edge="1">
           <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="60" as="sourcePoint" />
             <Array as="points">
               <mxPoint x="370" y="60" />
             </Array>
           </mxGeometry>
-        </mxCell>
-        <mxCell id="BnUGxDvCQAQGct8PmS8K-32" value="Role" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="440" y="15" width="140" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="BnUGxDvCQAQGct8PmS8K-33" value="Id (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="BnUGxDvCQAQGct8PmS8K-32" vertex="1">
-          <mxGeometry y="30" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="BnUGxDvCQAQGct8PmS8K-34" value="Name" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="BnUGxDvCQAQGct8PmS8K-32" vertex="1">
-          <mxGeometry y="60" width="140" height="30" as="geometry" />
         </mxCell>
         <mxCell id="BnUGxDvCQAQGct8PmS8K-50" value="Assignations" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="740" y="30" width="140" height="60" as="geometry" />
         </mxCell>
         <mxCell id="BnUGxDvCQAQGct8PmS8K-51" value="Id (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="BnUGxDvCQAQGct8PmS8K-50" vertex="1">
           <mxGeometry y="30" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="BnUGxDvCQAQGct8PmS8K-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=oval;endFill=0;" parent="1" source="BnUGxDvCQAQGct8PmS8K-64" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="370" y="60" as="targetPoint" />
-            <Array as="points">
-              <mxPoint x="280" y="60" />
-              <mxPoint x="280" y="60" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="BnUGxDvCQAQGct8PmS8K-64" value="If a role reference is null, it is assumed the client has no permissions at all" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
-          <mxGeometry x="-180" y="30" width="230" height="100" as="geometry" />
         </mxCell>
         <mxCell id="BnUGxDvCQAQGct8PmS8K-65" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=oval;endFill=0;" parent="1" source="BnUGxDvCQAQGct8PmS8K-66" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -473,14 +450,14 @@
         </mxCell>
         <mxCell id="BOYM97m4r2NdfPGLTcE4-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=oval;endFill=0;" parent="1" source="BOYM97m4r2NdfPGLTcE4-2" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="507" y="14" as="targetPoint" />
+            <mxPoint x="900" y="60" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="507" y="-60" />
+              <mxPoint x="960" y="-16" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="BOYM97m4r2NdfPGLTcE4-2" value="Roles are ONLY sent to users that have the &quot;UserPrivileges&quot; permission" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
-          <mxGeometry x="60" y="-110" width="230" height="100" as="geometry" />
+        <mxCell id="BOYM97m4r2NdfPGLTcE4-2" value="Permissions can only be read by users that have the &quot;UserPrivileges&quot; permission" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
+          <mxGeometry x="840" y="-140" width="230" height="100" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

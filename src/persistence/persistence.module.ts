@@ -16,7 +16,7 @@ export class PersistenceModule {
             const sequelize = newMssqlSequelize();
             const dbmodels = defineModels(sequelize);
             await sequelize.authenticate();
-            return { sequelize, ...dbmodels };
+            return { sequelize, ...dbmodels } as Models;
           },
         },
         { provide: FREER, useClass: PersistenceService },

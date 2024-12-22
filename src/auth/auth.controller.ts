@@ -15,7 +15,7 @@ import { Public } from './decorators/public.decorator';
 import { SignInDto, SignUpDto } from './auth.dto';
 import { AppValidationPipe } from '../common/AppValidation.pipe';
 import { CredentialsPipe } from './credentials.pipe';
-import { PROFILE } from './token_extractors/JwtExtractor';
+import { Profile, PROFILE } from './token_extractors/JwtExtractor';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +36,6 @@ export class AuthController {
 
   @Get('profile')
   fetchProfile(@Request() request) {
-    return request[PROFILE];
+    return request[PROFILE] as Profile;
   }
 }

@@ -1,22 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestingModule } from '@nestjs/testing';
 import { LanguageController } from './language.controller';
-import { LanguageService } from '../../../../src/common/language/language.service';
-import { HttpLangExtractorProvider } from '../../../../src/common/language/langExtractors/httpLangExtractor';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { english, spanish } from '../../../../src/common/language/constants';
-import { after } from 'node:test';
-import { LangMiddleware } from './lang.middleware';
-import { NextFunction } from 'express';
-import { getTestingApp } from '../testingApp';
+import { getTestingApp } from '../mockApp/testingApp';
 
 describe('AppController', () => {
   let languageController: LanguageController;
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     let appModule: TestingModule;
-    [appModule, app] = await getTestingApp({ controllers: [LanguageController] });
+    [appModule, app] = await getTestingApp({
+      controllers: [LanguageController],
+    });
     languageController = appModule.get(LanguageController);
   });
 

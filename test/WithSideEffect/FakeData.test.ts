@@ -1,9 +1,10 @@
 import * as fs from 'fs';
-import { generateData } from '../src/persistence/FakeData';
+import { generateData } from '../src/persistence/FakeDataGenerator';
+import { FAKES_FILE } from '../src/persistence/contants';
 
 test('Generate fake data', () => {
   const fd = generateData();
   console.log('----------------------FAKE DATA----------------------');
-  fs.writeFileSync('test/fakeData.json', JSON.stringify(fd), { flag: 'w' });
+  fs.writeFileSync(FAKES_FILE, JSON.stringify(fd), { flag: 'w' });
   console.log('-----------------------------------------------------');
 });

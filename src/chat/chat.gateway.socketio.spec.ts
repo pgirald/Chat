@@ -21,7 +21,7 @@ import { AppJwtAuthService } from '../common/AppJwtAuth.service';
 import { waitFor } from '../../test/utils/socketio/events';
 import { LanguageService } from '../common/language/language.service';
 import { IoLangExtractorProvider } from '../common/language/langExtractors/socketIoLangExtractor';
-import { getTestingApp } from '../../test/src/common/testingApp';
+import { getTestingApp } from '../../test/src/common/mockApp/testingApp';
 
 const profiles = {
   user1: { id: 1, username: 'Maki' },

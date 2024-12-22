@@ -9,26 +9,17 @@ import {
   Matches,
   Validate,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
-import { ValidateThat } from '../utils/class_validator';
 import { Client } from '../persistence/Entities';
 import { isRegExp } from 'util/types';
+import { PaginationDto } from '../common/crud/paginationDto';
+import { IsContactsFilter } from './isContactFilter';
 
-export class PaginationDto {
-  @IsInt()
-  page: number;
+export class ContactsPaginationDto {
+  @ValidateNested()
+  paginationInfo: PaginationDto;
 
-  @IsInt()
-  @IsPositive()
-  count: number;
-
-  @ValidateThat(
-    (value) =>
-      !value ||
-      (typeof value === 'string' && (isAlphanumeric(value) || isEmail(value))),
-    {
-      message: 'The value must be either an email or an alphanumeric',
-    },
-  )
+  @IsContactsFilter()
   filter?: string;
 }

@@ -12,23 +12,15 @@ import {
   Attachment,
   Subscription,
 } from './Entities';
-import { TablesNames } from './constants';
-
-type E<T extends object, k extends keyof T> = Model<T, Omit<T, k>>;
+import {
+  ASSIGNATIONS,
+  PERMISSIONS,
+  RESTRICTED_LOCKS,
+  TablesNames,
+} from './constants';
+import { E } from './Interfaces';
 
 export function defineModels(sequelize: Sequelize) {
-  const Roles = sequelize.define<E<Named, 'id'>>(TablesNames.Roles, {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  });
-
   const Permissions = sequelize.define<E<Named, 'id'>>(
     TablesNames.Permissions,
     {
@@ -44,54 +36,10 @@ export function defineModels(sequelize: Sequelize) {
     },
   );
 
-  const Assignations = sequelize.define<E<Assignation, 'id'>>(
-    TablesNames.Assignations,
-    {
-      id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      role: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: Roles,
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-      permission: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: Permissions,
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-    },
-  );
-
-  Roles.belongsToMany(Permissions, {
-    through: Assignations,
-    foreignKey: 'role',
-  });
-  Permissions.belongsToMany(Roles, {
-    through: Assignations,
-    foreignKey: 'permission',
-  });
-
   const Clients = sequelize.define<
     E<
       Client,
-      | 'id'
-      | 'about_me'
-      | 'role'
-      | 'img'
-      | 'phone_number'
-      | 'first_name'
-      | 'last_name'
+      'id' | 'about_me' | 'img' | 'phone_number' | 'first_name' | 'last_name'
     >
   >(
     TablesNames.Clients,
@@ -133,15 +81,6 @@ export function defineModels(sequelize: Sequelize) {
         type: DataTypes.STRING(),
         allowNull: true,
       },
-      role: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-          model: Roles,
-          key: 'id',
-        },
-        onDelete: 'SET NULL',
-      },
     },
     {
       indexes: [
@@ -151,8 +90,51 @@ export function defineModels(sequelize: Sequelize) {
     },
   );
 
-  Clients.belongsTo(Roles, { foreignKey: 'role' });
-  Roles.hasOne(Clients, { foreignKey: 'role' });
+  const Assignations = sequelize.define<E<Assignation, 'id'>>(
+    TablesNames.Assignations,
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      client: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: Clients,
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      permission: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: Permissions,
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+    },
+    { indexes: [{ unique: true, fields: ['permission', 'client'] }] },
+  );
+
+  Clients.hasMany(Assignations, {
+    foreignKey: 'client',
+    as: ASSIGNATIONS,
+  });
+  Assignations.belongsTo(Clients, { foreignKey: 'client' });
+
+  Clients.belongsToMany(Permissions, {
+    through: Assignations,
+    foreignKey: 'client',
+    as: PERMISSIONS,
+  });
+  Permissions.belongsToMany(Clients, {
+    through: Assignations,
+    foreignKey: 'permission',
+  });
 
   const Banned = sequelize.define<E<_Banned, 'id'>>(TablesNames.Banned, {
     id: {
@@ -223,6 +205,12 @@ export function defineModels(sequelize: Sequelize) {
       primaryKey: true,
     },
   });
+
+  Clients.hasMany(Locks, {
+    foreignKey: 'restricted',
+    as: RESTRICTED_LOCKS,
+  });
+  Locks.belongsTo(Clients, { foreignKey: 'restricted' });
 
   Clients.belongsToMany(Clients, {
     through: { model: Locks, unique: false },
@@ -394,45 +382,57 @@ export function defineModels(sequelize: Sequelize) {
     foreignKey: 'chat',
     as: 'chat_clients',
   });
+
   Clients.belongsToMany(Chats, {
     through: { model: Subscriptions, unique: false },
     foreignKey: 'sub',
     as: 'client_chats',
   });
 
-  const Messages = sequelize.define<E<Message, 'id'>>(TablesNames.Messages, {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    content: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    sender: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: Clients,
-        key: 'id',
+  const Messages = sequelize.define<E<Message, 'id'>>(
+    TablesNames.Messages,
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
       },
-      onDelete: 'CASCADE',
-    },
-    chat: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: Chats,
-        key: 'id',
+      content: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
-      onDelete: 'CASCADE',
+      sender: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: Clients,
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      chat: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: Chats,
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      receptionTime: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
     },
-    receptionTime: {
-      type: DataTypes.TIME,
-      allowNull: false,
+    {
+      indexes: [
+        {
+          fields: [{ name: 'receptionTime', order: 'DESC' }],
+          unique: false,
+        },
+      ],
     },
-  });
+  );
 
   Clients.hasMany(Messages, { foreignKey: 'sender' });
   Messages.belongsTo(Clients, { foreignKey: 'sender' });
@@ -468,7 +468,6 @@ export function defineModels(sequelize: Sequelize) {
   Attachments.belongsTo(Messages, { foreignKey: 'message' });
 
   return {
-    [TablesNames.Roles]: Roles,
     [TablesNames.Permissions]: Permissions,
     [TablesNames.Assignations]: Assignations,
     [TablesNames.Clients]: Clients,

@@ -1,8 +1,6 @@
-export type Entity = 'Contact' | 'Chats';
-
 export type Named = { id: number; name: string };
 
-export type Assignation = { id: number; role: number; permission: number };
+export type Assignation = { id: number; client: number; permission: number };
 
 export type Client = {
   id: number;
@@ -13,7 +11,6 @@ export type Client = {
   first_name?: string;
   last_name?: string;
   about_me?: string;
-  role?: number;
   img?: string;
 };
 
@@ -70,4 +67,16 @@ export type Attachment = {
 export type Subscription = {
   sub: number;
   chat: number;
+};
+
+export const permissionsEnum = {
+  defaults: { id: 1, name: 'Defaults' },
+  broadcast: { id: 2, name: 'Broadcast' },
+  userD_B: { id: 3, name: 'User deletion/ban' },
+  userPrivilege: { id: 4, name: 'User privilege' },
+};
+
+export const restrictionsEnum = {
+  mute: { id: 1, name: 'Mute' },
+  block: { id: 2, name: 'Block' },
 };

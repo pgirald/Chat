@@ -1,19 +1,19 @@
 import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
-import { AppModule } from '../../../src/app.module';
-import { FREER, MODELS } from '../../../src/persistence/constants';
+import { AppModule } from '../../../../src/app.module';
+import { FREER, MODELS } from '../../../../src/persistence/constants';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
   fakePersistenceProviders,
   mockModelsFactory,
-} from '../persistence/fakePersistenceProviders';
+} from '../../persistence/fakePersistenceProviders';
 import { INestApplication, ModuleMetadata } from '@nestjs/common';
-import { FakePersistenceService } from '../persistence/fakePersistense.service';
-import { AuthGuard } from '../../../src/auth/auth.guard';
-import { PersistenceModule } from '../../../src/persistence/persistence.module';
-import { FakePersistenceModule } from '../persistence/fakePersistence.module';
-import { gatewayDeps } from '../../../src/gateway';
-import { PersistenceService } from '../../../src/persistence/persistence.service';
-import { SECRET, SECRET_EXPIRATION } from '../../../src/auth/constants';
+import { FakePersistenceService } from '../../persistence/fakePersistense.service';
+import { AuthGuard } from '../../../../src/auth/auth.guard';
+import { PersistenceModule } from '../../../../src/persistence/persistence.module';
+import { gatewayDeps } from '../../../../src/gateway';
+import { PersistenceService } from '../../../../src/persistence/persistence.service';
+import { SECRET, SECRET_EXPIRATION } from '../../../../src/auth/constants';
+import { FAKE_EXPIRATION, FAKE_SECRET } from './constants';
 
 export async function getTestingApp(
   moduleMeta?: ModuleMetadata,
@@ -43,10 +43,10 @@ export async function getTestingApp(
         let value: string | null;
         switch (key) {
           case SECRET:
-            value = 'My JWT secret';
+            value = FAKE_SECRET;
             break;
           case SECRET_EXPIRATION:
-            value = '1h';
+            value = FAKE_EXPIRATION;
             break;
           default:
             value = null;

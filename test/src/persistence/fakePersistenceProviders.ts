@@ -1,10 +1,4 @@
 import {
-  Inject,
-  Injectable,
-  OnApplicationShutdown,
-  Provider,
-} from '@nestjs/common';
-import {
   FREER,
   Models,
   MODELS,
@@ -12,7 +6,7 @@ import {
 } from '../../../src/persistence/constants';
 import { ModelStatic, Sequelize } from 'sequelize';
 import * as fs from 'fs';
-import { fakesFile } from './contants';
+import { FAKES_FILE } from './contants';
 import { FakePersistenceService } from './fakePersistense.service';
 import { newMemorySqliteSequelize } from './Data_Source';
 import { defineModels } from '../../../src/persistence/models';
@@ -31,9 +25,10 @@ export async function mockModelsFactory() {
   }
   const testingSequelize = newMemorySqliteSequelize();
   const testingDbModels = defineModels(testingSequelize);
-  await testingSequelize.sync({ force: true, logging: false });
+  await testingSequelize.sync({ force: true });
   //console.log('Tables created successfully.');
-  const fakeData: object = JSON.parse(fs.readFileSync(fakesFile).toString());
+  const fakeData: object = JSON.parse(fs.readFileSync(FAKES_FILE).toString());
+
   for (const tbl of Object.values(TablesNames)) {
     //console.log(`Starting [${tbl}] population`);
     await (testingDbModels[tbl] as ModelStatic<never>).bulkCreate(
@@ -42,7 +37,7 @@ export async function mockModelsFactory() {
     //console.log(`[${tbl}] was populated`);
   }
   //console.log('All table were successfully populated');
-  _models = { sequelize: testingSequelize, ...testingDbModels };
+  _models = { sequelize: testingSequelize, ...testingDbModels } as Models;
   return _models;
 }
 

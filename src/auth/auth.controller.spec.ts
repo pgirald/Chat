@@ -3,20 +3,20 @@ import { AuthController } from './auth.controller';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SECRET, SECRET_EXPIRATION } from './constants';
+import { AUTHORIZATION, BEARER, SECRET, SECRET_EXPIRATION } from './constants';
 import { MODELS, Models } from '../persistence/constants';
 import { AuthService } from './auth.service';
 import * as request from 'supertest';
 import { SignInDto, SignUpDto } from './auth.dto';
 import * as fs from 'fs';
-import { Client } from '../../src/persistence/Entities';
-import { defaultPassword, Tables } from '../../test/src/persistence/contants';
+import { Client } from '../persistence/Entities';
+import { DEFAULT_PASSWORD, Tables } from '../../test/src/persistence/contants';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { ConsoleLogFilter } from '../../test/src/common/consoleLog.filter';
 import { HttpJwtExtractor } from './token_extractors/httpJwtExtractor.service';
 import { Profile } from './token_extractors/JwtExtractor';
-import { getTestingApp } from '../../test/src/common/testingApp';
+import { getTestingApp } from '../../test/src/common/mockApp/testingApp';
 // import { useContainer } from 'class-validator';
 // import { IsNewUsernameConstraint } from './validators/isNewUsername';
 // import { IsNewEmailConstraint } from './validators/isNewEmail';
@@ -96,9 +96,9 @@ describe('ContactsController', () => {
   it.each`
     signInDto                                                           | expectedStatus | erroneousProps
     ${{ email: fakeData.Clients[0].email, password: 'wrong password' }} | ${401}         | ${undefined}
-    ${{ email: 'nonexisting@mail.com', password: defaultPassword }}     | ${401}         | ${undefined}
-    ${{ email: 'invalid-email', password: defaultPassword }}            | ${400}         | ${['email']}
-    ${{ email: fakeData.Clients[0].email, password: defaultPassword }}  | ${200}         | ${undefined}
+    ${{ email: 'nonexisting@mail.com', password: DEFAULT_PASSWORD }}    | ${401}         | ${undefined}
+    ${{ email: 'invalid-email', password: DEFAULT_PASSWORD }}           | ${400}         | ${['email']}
+    ${{ email: fakeData.Clients[0].email, password: DEFAULT_PASSWORD }} | ${200}         | ${undefined}
   `(
     'should sign in',
     async ({
@@ -162,7 +162,7 @@ describe('ContactsController', () => {
       }
       const res = await request(app.getHttpServer())
         .get('/auth/profile')
-        .set('Authorization', `Bearer ${jwt}`);
+        .set(AUTHORIZATION, `${BEARER} ${jwt}`);
       expect(res.status).toBe(expectedStatus);
       if (expectedError) {
         expect(res.body.message).toBe(expectedError);
