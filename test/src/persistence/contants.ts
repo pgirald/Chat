@@ -13,12 +13,11 @@ import {
   Subscription,
 } from '../../../src/persistence/Entities';
 
-export const defaultPassword = '123';
+export const DEFAULT_PASSWORD = '123';
 
-export const fakesFile = 'test/fakeData.json';
+export const FAKES_FILE = 'test/fakeData.json';
 
 export type Tables = {
-  [TablesNames.Roles]: Named[];
   [TablesNames.Permissions]: Named[];
   [TablesNames.Assignations]: Assignation[];
   [TablesNames.Clients]: Client[];

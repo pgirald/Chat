@@ -1,6 +1,12 @@
-import { IS_EMAIL, IS_STRONG_PASSWORD } from 'class-validator';
+import {
+  IS_EMAIL,
+  IS_INT,
+  IS_POSITIVE,
+  IS_STRONG_PASSWORD,
+} from 'class-validator';
 import { Language } from './interfaces';
 import { IS_USERNAME } from '../../auth/validators/isUsername';
+import { IS_CONTACTS_FILTER } from '../../contacts/isContactFilter';
 
 export const english: Language = {
   lang: 'english',
@@ -13,6 +19,9 @@ export const english: Language = {
     [IS_EMAIL]: 'The email has an incorrect format.',
     [IS_STRONG_PASSWORD]: 'The password is not strong enough.',
     [IS_USERNAME]: 'The username has an invalid format.',
+    [IS_CONTACTS_FILTER]: 'The filter does not have an username/email format.',
+    [IS_INT]: 'The value is not an interger number.',
+    [IS_POSITIVE]: 'The value is not positive. ',
   },
   status: {
     200: 'OK',
@@ -33,7 +42,7 @@ export const english: Language = {
     502: 'Bad Gateway',
     503: 'Service Unavailable',
     504: 'Gateway Timeout',
-    unknown:"Unknown Error",
+    unknown: 'Unknown Error',
   },
 };
 
@@ -48,6 +57,9 @@ export const spanish: Language = {
     [IS_EMAIL]: 'El email tiene un formato incorrecto.',
     [IS_STRONG_PASSWORD]: 'La contraseña no es los suficientemente fuerte.',
     [IS_USERNAME]: 'El nombre de usuario tiene un formato incorrecto.',
+    [IS_CONTACTS_FILTER]: 'El filtro no tiene formato de usuario/email.',
+    [IS_INT]: 'El valor no es un número entero.',
+    [IS_POSITIVE]: 'El valor no es un número positivo.',
   },
   status: {
     200: 'Correcto',
@@ -68,6 +80,6 @@ export const spanish: Language = {
     502: 'Puerta de Enlace Incorrecta',
     503: 'Servicio No Disponible',
     504: 'Tiempo de Espera de la Puerta de Enlace Agotado',
-    unknown:"Error Desconocido",
+    unknown: 'Error Desconocido',
   },
 };

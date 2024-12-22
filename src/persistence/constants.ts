@@ -12,17 +12,22 @@ export type Models = ReturnType<typeof defineModels> & {
 };
 
 export const TablesNames = {
-  Roles: 'Roles' as const,
-  Permissions: 'Permissions' as const,
-  Assignations: 'Assignations' as const,
-  Clients: 'Clients' as const,
-  Banned: 'Banned' as const,
-  Restrictions: 'Restrictions' as const,
-  Locks: 'Locks' as const,
-  Ringtones: 'Ringtones' as const,
-  Settings: 'Settings' as const,
-  Chats: 'Chats' as const,
-  Subscriptions: 'Subscriptions' as const,
-  Messages: 'Messages' as const,
-  Attachments: 'Attachments' as const,
+  Permissions: 'Permissions' as 'Permissions',
+  Clients: 'Clients' as 'Clients',
+  Assignations: 'Assignations' as 'Assignations',
+  Banned: 'Banned' as 'Banned',
+  Restrictions: 'Restrictions' as 'Restrictions',
+  Locks: 'Locks' as 'Locks',
+  Ringtones: 'Ringtones' as 'Ringtones',
+  Settings: 'Settings' as 'Settings',
+  Chats: 'Chats' as 'Chats',
+  Subscriptions: 'Subscriptions' as 'Subscriptions',
+  Messages: 'Messages' as 'Messages',
+  Attachments: 'Attachments' as 'Attachments',
 };
+
+export const PERMISSIONS = 'permissions_alias';
+
+export const ASSIGNATIONS = 'assignations_alias';
+
+export const RESTRICTED_LOCKS = 'restricted_locks_alias';

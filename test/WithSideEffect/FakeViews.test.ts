@@ -1,29 +1,28 @@
 import * as fs from 'fs';
-import { permissionsEnum, restrictionsEnum } from '../src/persistence/FakeData';
 import {
   Chat as Chatvw,
   Message as Messagevw,
   Contact,
-  Role as Rolevw,
   Ringtone as Ringtonevw,
   User,
   Settings,
+  Privileges
 } from 'chat-api';
 import {
   Chat,
   Client,
   Message,
   Named,
+  permissionsEnum,
+  restrictionsEnum,
   Ringtone,
   Setting,
   Subscription,
 } from '../../src/persistence/Entities';
-import { unique } from '../../src/utils/general';
 import { stringify } from 'flatted';
-import { TablesNames } from 'src/persistence/constants';
-import { Tables } from 'test/src/persistence/contants';
+import { FAKES_FILE, Tables } from '../src/persistence/contants';
 
-test.each<[string, string]>([['test/fakeData.json', 'test/fakeViews.json']])(
+test.each<[string, string]>([[FAKES_FILE, 'test/fakeViews.json']])(
   'Generate fake views',
   (fakesFile, outFile) => {
     const fakeData: Tables = JSON.parse(fs.readFileSync(fakesFile).toString());
@@ -37,12 +36,9 @@ test.each<[string, string]>([['test/fakeData.json', 'test/fakeViews.json']])(
     let dbChats: Chat[];
     let chats: Chatvw[];
     let contactsPool: Contact[];
-    let rolesPool: Rolevw[];
     let ringtonesPool: Ringtonevw[];
     let settings: Setting;
     let allChats: Chatvw[];
-
-    rolesPool = fakeData.Roles.map((role) => role2view(role));
 
     ringtonesPool = fakeData.Ringtones.map((ringtone) =>
       ringtone2view(ringtone),
@@ -165,19 +161,15 @@ test.each<[string, string]>([['test/fakeData.json', 'test/fakeViews.json']])(
         username: dbClient.username,
         aboutMe: dbClient.about_me,
         img: dbClient.img,
-        role:
-          dbClient.role && rolesPool.find((role) => role.id === dbClient.role),
+        permissions: getPermissions(dbClient),
       };
     }
 
-    function role2view(role: Named): Rolevw {
-      const dbRole = fakeData.Roles.find((rl) => rl.id === role.id);
+    function getPermissions(dbClient: Client): Privileges {
       const assignations = fakeData.Assignations.filter(
-        (ass) => ass.role === dbRole.id,
+        (ass) => ass.client === dbClient.id,
       );
       return {
-        id: role.id,
-        name: dbRole.name,
         broadcast:
           assignations.length > 0 &&
           assignations.some(
