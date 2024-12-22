@@ -18,7 +18,7 @@ import {
   RESTRICTED_LOCKS,
   TablesNames,
 } from './constants';
-import { E } from './Interfaces';
+import { E } from './interfaces';
 
 export function defineModels(sequelize: Sequelize) {
   const Permissions = sequelize.define<E<Named, 'id'>>(

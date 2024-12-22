@@ -67,7 +67,7 @@ export class ContactsController {
     let locks: Lock[];
     let assignations: Assignation[];
 
-    const views = page.map<Contact>(({ dataValues: client }) => {
+    const views = page.map(({ dataValues: client }) => {
       locks = client[RESTRICTED_LOCKS];
       assignations = client[ASSIGNATIONS];
 
@@ -104,7 +104,7 @@ export class ContactsController {
               assignation.permission === permissionsEnum.userPrivilege.id,
           ),
         },
-      };
+      } as Contact;
     });
 
     return [views, hasMore];
