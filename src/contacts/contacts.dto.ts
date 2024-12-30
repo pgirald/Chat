@@ -11,15 +11,16 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { Client } from '../persistence/Entities';
-import { isRegExp } from 'util/types';
 import { PaginationDto } from '../common/crud/paginationDto';
 import { IsContactsFilter } from './isContactFilter';
+import { Type } from 'class-transformer';
 
 export class ContactsPaginationDto {
-  @ValidateNested()
-  paginationInfo: PaginationDto;
-
+  @IsOptional()
   @IsContactsFilter()
   filter?: string;
+
+  @ValidateNested()
+  @Type(() => PaginationDto)
+  paginationInfo: PaginationDto;
 }

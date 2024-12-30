@@ -7,6 +7,8 @@ import {
 import { Language } from './interfaces';
 import { IS_USERNAME } from '../../auth/validators/isUsername';
 import { IS_CONTACTS_FILTER } from '../../contacts/isContactFilter';
+import { IS_UNDER_PAGE_LIMIT } from '../crud/isUnderPageLimit';
+import { PAGE_LIMIT } from '../crud/constants';
 
 export const english: Language = {
   lang: 'english',
@@ -22,6 +24,7 @@ export const english: Language = {
     [IS_CONTACTS_FILTER]: 'The filter does not have an username/email format.',
     [IS_INT]: 'The value is not an interger number.',
     [IS_POSITIVE]: 'The value is not positive. ',
+    [IS_UNDER_PAGE_LIMIT]: `The requested page size exceeds the limit.`,
   },
   status: {
     200: 'OK',
@@ -60,6 +63,7 @@ export const spanish: Language = {
     [IS_CONTACTS_FILTER]: 'El filtro no tiene formato de usuario/email.',
     [IS_INT]: 'El valor no es un número entero.',
     [IS_POSITIVE]: 'El valor no es un número positivo.',
+    [IS_UNDER_PAGE_LIMIT]: `El tamaño de página solicitado supera el límite.`,
   },
   status: {
     200: 'Correcto',

@@ -1,20 +1,25 @@
 import {
   isAlphanumeric,
   isEmail,
+  matches,
   registerDecorator,
   ValidationArguments,
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { isUsername } from '../auth/validators/isUsername';
 
 export const IS_CONTACTS_FILTER = 'isContactsFilter';
 
 @ValidatorConstraint({ name: IS_CONTACTS_FILTER })
-export class IsContactsFilterConstraint implements ValidatorConstraintInterface {
+export class IsContactsFilterConstraint
+  implements ValidatorConstraintInterface
+{
   async validate(filter: any, args: ValidationArguments) {
     return (
-      typeof filter === 'string' && (isAlphanumeric(filter) || isEmail(filter))
+      typeof filter === 'string' &&
+      (matches(filter, /^([_.-]?[A-Za-z0-9])*$/) || isEmail(filter))
     );
   }
 
@@ -30,7 +35,7 @@ export function IsContactsFilter(validationOptions?: ValidationOptions) {
       propertyName: propertyName,
       options: validationOptions,
       constraints: [],
-      validator: IsContactsFilter,
+      validator: IsContactsFilterConstraint,
     });
   };
 }

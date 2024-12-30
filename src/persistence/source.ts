@@ -3,7 +3,7 @@ import { Banned as _Banned } from './Entities';
 
 export function newMssqlSequelize() {
   return new Sequelize({
-    logging: false,
+    //logging: false,
     dialect: 'mssql',
     dialectOptions: {
       server: 'localhost',

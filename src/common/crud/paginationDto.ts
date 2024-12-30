@@ -1,4 +1,7 @@
-import { IsInt, IsPositive } from "class-validator";
+import { IsInt, IsOptional, IsPositive, ValidateNested } from 'class-validator';
+import { IsUnderPageLimit } from './isUnderPageLimit';
+import { IsAlwaysWrong } from '../../../test/src/common/validators/isAlwaysWrong';
+import { Type } from 'class-transformer';
 
 export class PaginationDto {
   @IsInt()
@@ -6,5 +9,6 @@ export class PaginationDto {
 
   @IsInt()
   @IsPositive()
+  @IsUnderPageLimit()
   count: number;
 }

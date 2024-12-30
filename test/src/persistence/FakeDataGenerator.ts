@@ -16,8 +16,21 @@ import {
 } from '../../../src/persistence/Entities';
 import * as bcrypt from 'bcrypt';
 import { TablesNames } from '../../../src/persistence/constants';
-import { DEFAULT_PASSWORD, Tables } from './contants';
-import { Gen, randElm, randElms, range, typedKeys, unique } from 'js_utils';
+import {
+  DEFAULT_PASSWORD,
+  substrings,
+  Tables,
+  TablesPatterns,
+} from './contants';
+import {
+  Gen,
+  randElm,
+  randElms,
+  randInt,
+  range,
+  typedKeys,
+  unique,
+} from 'js_utils';
 
 //TODO: Validate the generation configuration data
 //--------------------Generation configuration start--------------------
@@ -51,7 +64,7 @@ export function generateData(): Tables {
         : undefined,
       last_name: faker.datatype.boolean() ? faker.person.lastName() : undefined,
       phone_number: faker.phone.number(),
-      username: faker.internet.userName(),
+      username: `${faker.internet.userName()}`,
       password: pass,
       about_me: faker.word.words({ count: { min: 0, max: 10 } }) || undefined,
       img: faker.datatype.boolean() ? faker.internet.url() : undefined,
@@ -216,7 +229,7 @@ export function generateData(): Tables {
     url: faker.internet.url(),
   }));
 
-  return {
+  const fakeData = {
     [TablesNames.Permissions]: permissions,
     [TablesNames.Clients]: clients,
     [TablesNames.Assignations]: assignations,
@@ -230,4 +243,37 @@ export function generateData(): Tables {
     [TablesNames.Messages]: messages,
     [TablesNames.Attachments]: attachments,
   };
+
+  injectPatterns(fakeData, substrings);
+
+  return fakeData;
+}
+
+function injectPatterns(fakeData: Tables, substrings: TablesPatterns) {
+  let resultingString: string;
+  let originalString: string;
+  let index: number;
+  typedKeys(substrings).forEach((key) => {
+    if (fakeData[key].length === 0) {
+      return;
+    }
+    
+    const chosen = randElms<any>(
+      fakeData[key],
+      randInt(1, fakeData[key].length),
+    );
+    for (const elm of chosen) {
+      for (const field of substrings[key].fields) {
+        if (typeof elm[field] !== 'string') {
+          throw new Error(
+            'The properties to be injected must be of type string',
+          );
+        }
+        originalString = elm[field];
+        index = randInt(0, originalString.length);
+        resultingString = `${originalString.substring(0, index)}${substrings[key].pattern}${originalString.substring(index)}`;
+        elm[field] = resultingString;
+      }
+    }
+  });
 }
