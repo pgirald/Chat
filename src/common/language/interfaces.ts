@@ -6,6 +6,7 @@ import {
 } from 'class-validator';
 import { IS_USERNAME } from 'src/auth/validators/isUsername';
 import { IS_CONTACTS_FILTER } from 'src/contacts/isContactFilter';
+import { IS_UNDER_PAGE_LIMIT } from '../crud/isUnderPageLimit';
 
 export interface Language {
   lang: string;
@@ -18,6 +19,7 @@ export interface Language {
     [IS_CONTACTS_FILTER]: string;
     [IS_INT]: string;
     [IS_POSITIVE]: string;
+    [IS_UNDER_PAGE_LIMIT]: string;
     getDefault(property: string): string;
   };
   status: {

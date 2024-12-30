@@ -6,6 +6,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { LanguageService } from './language/language.service';
+import { ValidationError } from 'class-validator';
 
 @Injectable()
 export class AppValidationPipe implements PipeTransform {
@@ -16,9 +17,15 @@ export class AppValidationPipe implements PipeTransform {
       exceptionFactory: (errors) => {
         let constraint: string;
         let msg: string | undefined;
-        const result = errors.reduce((errorMap, error) => {
+        const result = errors.reduce(function getErrorMap(errorMap, error) {
+          if (!error.constraints) {
+            for (const child of error.children) {
+              getErrorMap(errorMap, child);
+            }
+            return errorMap;
+          }
           constraint = Object.keys(error.constraints)[0];
-          msg = this.langProvider.language.validation[constraint];
+          msg = langProvider.language.validation[constraint];
           errorMap[error.property] =
             msg ||
             this.langProvider.language.validation.getDefault(error.property);

@@ -14,11 +14,11 @@ export class CrudService {
     const pageNumber =
       paginationDto.page < 0 ? paginationDto.page * -1 - 1 : paginationDto.page;
     const page = await entities.findAll({
+      ...(findOps || {}),
       offset: pageNumber * paginationDto.count,
       limit: paginationDto.count + 1,
       order:
         paginationDto.page < 0 ? [[orderField, 'DESC']] : [[orderField, 'ASC']],
-      ...(findOps || {}),
     });
 
     let hasMore = false;

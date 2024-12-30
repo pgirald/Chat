@@ -15,16 +15,9 @@ import {
 } from '../persistence/constants';
 import { ContactsPaginationDto } from './contacts.dto';
 import { CrudService } from '../common/crud/crud.services';
-import { Contact } from 'chat-api';
-import {
-  Assignation,
-  Client,
-  Lock,
-  Named,
-  permissionsEnum,
-  restrictionsEnum,
-} from '../persistence/Entities';
 import { Profile, PROFILE } from '../auth/token_extractors/JwtExtractor';
+import { Client2ViewService } from './client2view.service';
+import { AppValidationPipe } from '../common/AppValidation.pipe';
 
 @Controller('contacts')
 export class ContactsController {
@@ -35,11 +28,12 @@ export class ContactsController {
     @Inject(TablesNames.Locks)
     private readonly locks: Models['Locks'],
     private readonly crud: CrudService,
+    private readonly client2view: Client2ViewService,
   ) {}
 
   @Post('find')
   async findPage(
-    @Body(ValidationPipe) contactsPaginationDto: ContactsPaginationDto,
+    @Body(AppValidationPipe) contactsPaginationDto: ContactsPaginationDto,
     @Request() req,
   ) {
     const [page, hasMore] = await this.crud.findPage(
@@ -47,10 +41,18 @@ export class ContactsController {
       contactsPaginationDto.paginationInfo,
       {
         where: contactsPaginationDto.filter && {
-          username: { [Op.like]: `%${contactsPaginationDto.filter}%` },
-          [`$${RESTRICTED_LOCKS}.restrictor$`]: {
-            [Op.eq]: (req[PROFILE] as Profile).id,
-          },
+          [Op.or]: [
+            {
+              username: {
+                [Op.like]: `%${contactsPaginationDto.filter}%`,
+              },
+            },
+            {
+              email: {
+                [Op.like]: `%${contactsPaginationDto.filter}%`,
+              },
+            },
+          ],
         },
         include: [
           {
@@ -60,52 +62,24 @@ export class ContactsController {
           {
             model: this.locks,
             as: RESTRICTED_LOCKS,
+            required: false,
+            where: {
+              restrictor: {
+                [Op.eq]: (req[PROFILE] as Profile).id,
+              },
+            },
           },
         ],
       },
     );
-    let locks: Lock[];
-    let assignations: Assignation[];
 
-    const views = page.map(({ dataValues: client }) => {
-      locks = client[RESTRICTED_LOCKS];
-      assignations = client[ASSIGNATIONS];
-
-      return {
-        id: client.id,
-        email: client.email,
-        blocked: locks.some(
-          (lock) => lock.restriction === restrictionsEnum.block.id,
-        ),
-        muted: locks.some(
-          (lock) => lock.restriction === restrictionsEnum.mute.id,
-        ),
-        firstName: client.first_name,
-        lastName: client.last_name,
-        username: client.username,
-        aboutMe: client.about_me,
-        img: client.img,
-        phoneNumber: client.phone_number,
-        permissions: {
-          broadcast: assignations.some(
-            (assignation) =>
-              assignation.permission === permissionsEnum.broadcast.id,
-          ),
-          defaults: assignations.some(
-            (assignation) =>
-              assignation.permission === permissionsEnum.defaults.id,
-          ),
-          userDeletionBan: assignations.some(
-            (assignation) =>
-              assignation.permission === permissionsEnum.userD_B.id,
-          ),
-          userPrivileges: assignations.some(
-            (assignation) =>
-              assignation.permission === permissionsEnum.userPrivilege.id,
-          ),
-        },
-      } as Contact;
-    });
+    const views = page.map(({ dataValues: client }) =>
+      this.client2view.convert(
+        client,
+        client[RESTRICTED_LOCKS],
+        client[ASSIGNATIONS],
+      ),
+    );
 
     return [views, hasMore];
   }

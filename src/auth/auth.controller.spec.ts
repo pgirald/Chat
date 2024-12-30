@@ -17,6 +17,7 @@ import { ConsoleLogFilter } from '../../test/src/common/consoleLog.filter';
 import { HttpJwtExtractor } from './token_extractors/httpJwtExtractor.service';
 import { Profile } from './token_extractors/JwtExtractor';
 import { getTestingApp } from '../../test/src/common/mockApp/testingApp';
+import { fakeData } from '../../test/src/persistence/FakeData';
 // import { useContainer } from 'class-validator';
 // import { IsNewUsernameConstraint } from './validators/isNewUsername';
 // import { IsNewEmailConstraint } from './validators/isNewEmail';
@@ -25,9 +26,6 @@ describe('ContactsController', () => {
   let authController: AuthController;
   let models: Models;
   let app: INestApplication;
-  const fakeData: Tables = JSON.parse(
-    fs.readFileSync('test/fakeData.json').toString(),
-  );
   let jwtService: JwtService;
   let config: ConfigService;
 
@@ -87,7 +85,9 @@ describe('ContactsController', () => {
           username: signUpDto.username,
         });
       } else if (erroneousProps) {
-        expect(Object.keys(res.body).sort()).toEqual(erroneousProps.sort());
+        expect(Object.keys(res.body.detail).sort()).toEqual(
+          erroneousProps.sort(),
+        );
       }
       expect(res.status).toBe(expectedStatus);
     },
@@ -119,7 +119,7 @@ describe('ContactsController', () => {
         expect(res.body).toHaveProperty('access_token');
         expect(typeof res.body.access_token).toBe('string');
       } else if (erroneousProps) {
-        expect(Object.keys(res.body).sort()).toEqual(erroneousProps.sort());
+        expect(Object.keys(res.body.detail).sort()).toEqual(erroneousProps.sort());
       }
       expect(res.status).toBe(expectedStatus);
     },
@@ -165,7 +165,7 @@ describe('ContactsController', () => {
         .set(AUTHORIZATION, `${BEARER} ${jwt}`);
       expect(res.status).toBe(expectedStatus);
       if (expectedError) {
-        expect(res.body.message).toBe(expectedError);
+        expect(res.body.detail.message).toBe(expectedError);
       } else if (profile) {
         expect(res.body.username).toBe(profile.username);
         expect(res.body.id).toBe(profile.id);

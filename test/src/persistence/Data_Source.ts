@@ -23,7 +23,7 @@ import { defineModels } from '../../../src/persistence/models';
 
 export function newMemorySqliteSequelize() {
   return new Sequelize('sqlite::memory:', {
-    logging: false,
+    //logging: false,
   });
 }
 

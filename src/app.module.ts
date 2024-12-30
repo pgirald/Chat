@@ -4,10 +4,9 @@ import { HttpLangExtractorProvider } from './common/language/langExtractors/http
 import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
 import { ContactsModule } from './contacts/contacts.module';
-import { APP_GUARD } from '@nestjs/core';
-import { LanguageGuard } from './common/language/language.Guard';
 import { HttpLanguageModule } from './common/language/httpLanguage.module';
 import { AppValidationPipe } from './common/AppValidation.pipe';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [

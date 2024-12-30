@@ -4,12 +4,14 @@ import {
   MODELS,
   TablesNames,
 } from '../../../src/persistence/constants';
-import { ModelStatic, Sequelize } from 'sequelize';
+import { ModelStatic, QueryTypes } from 'sequelize';
+import { FakePersistenceService } from './fakePersistense.service';
+import { defineModels } from '../../../src/persistence/models';
+import { newMssqlSequelize } from '../../../src/persistence/source';
 import * as fs from 'fs';
 import { FAKES_FILE } from './contants';
-import { FakePersistenceService } from './fakePersistense.service';
+import { fakeData } from './FakeData';
 import { newMemorySqliteSequelize } from './Data_Source';
-import { defineModels } from '../../../src/persistence/models';
 
 export const fakePersistenceProviders = [
   {
@@ -23,16 +25,21 @@ export async function mockModelsFactory() {
   if (_models) {
     return _models;
   }
+  //const testingSequelize = newMssqlSequelize();
   const testingSequelize = newMemorySqliteSequelize();
   const testingDbModels = defineModels(testingSequelize);
-  await testingSequelize.sync({ force: true });
+  try {
+    await testingSequelize.sync({ force: true, logging: false });
+  } catch (e) {
+    console.log(e);
+  }
   //console.log('Tables created successfully.');
-  const fakeData: object = JSON.parse(fs.readFileSync(FAKES_FILE).toString());
 
   for (const tbl of Object.values(TablesNames)) {
     //console.log(`Starting [${tbl}] population`);
     await (testingDbModels[tbl] as ModelStatic<never>).bulkCreate(
-      fakeData[tbl],
+      (fakeData as any)[tbl],
+      { logging: false },
     );
     //console.log(`[${tbl}] was populated`);
   }
