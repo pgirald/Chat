@@ -18,15 +18,10 @@ import {
     Setting,
     Subscription,
   } from '../../../src/persistence/Entities';
-import { Tables } from './contants';
+import { Tables, View } from './contants';
 
 export function generateViews(fakeData: Tables) {
-    const views: {
-      user: User;
-      settings?: Settings;
-      chats: Chatvw[];
-      contacts: Contact[];
-    }[] = [];
+    const views: View[] = [];
     let clientSubs: Subscription[];
     let dbChats: Chat[];
     let chats: Chatvw[];

@@ -12,3 +12,9 @@ export class PaginationDto {
   @IsUnderPageLimit()
   count: number;
 }
+
+export interface EntitiesPaginationDto<F> {
+  filter: F;
+
+  paginationInfo: PaginationDto;
+}

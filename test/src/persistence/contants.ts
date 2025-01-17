@@ -13,7 +13,7 @@ import {
   Setting,
   Subscription,
 } from '../../../src/persistence/Entities';
-import { Contact, User } from 'chat-api';
+import { Contact, Settings, User, Chat as Chatvw } from 'chat-api';
 
 export const DEFAULT_PASSWORD = '123';
 
@@ -49,4 +49,11 @@ export const substrings: TablesPatterns = {
     pattern: 'ac',
     fields: ['email', 'username'],
   },
+};
+
+export type View = {
+  user: User;
+  settings?: Settings;
+  chats: Chatvw[];
+  contacts: Contact[];
 };

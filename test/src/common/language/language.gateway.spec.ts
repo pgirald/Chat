@@ -1,15 +1,11 @@
 import { AddressInfo } from 'net';
 import { Socket, io as ioc } from 'socket.io-client';
-import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { LanguageService } from '../../../../src/common/language/language.service';
 import { IoLangExtractorProvider } from '../../../../src/common/language/langExtractors/socketIoLangExtractor';
 import { LanguageGateway, PING, PONG } from './language.gateway';
 import { english, spanish } from '../../../../src/common/language/constants';
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { LangMiddleware } from './lang.middleware';
 import { waitFor } from '../../../../test/utils/socketio/events';
 
 describe('ChatGateway', () => {

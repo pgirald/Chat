@@ -11,14 +11,19 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { PaginationDto } from '../common/crud/paginationDto';
+import {
+  EntitiesPaginationDto,
+  PaginationDto,
+} from '../common/crud/paginationDto';
 import { IsContactsFilter } from './isContactFilter';
 import { Type } from 'class-transformer';
 
-export class ContactsPaginationDto {
+export class ContactsPaginationDto
+  implements EntitiesPaginationDto<string | undefined>
+{
   @IsOptional()
   @IsContactsFilter()
-  filter?: string;
+  filter: string | undefined;
 
   @ValidateNested()
   @Type(() => PaginationDto)
