@@ -1,14 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Emitter } from './chat/interfaces/emitter';
-import {
-  BadRequestException,
-  ValidationPipe,
-  WebSocketAdapter,
-} from '@nestjs/common';
-import { IoAdapter } from '@nestjs/platform-socket.io';
-import { SocketIoEmitter } from './chat/SocketIoEmitter.service';
-import { useContainer } from 'class-validator';
 import { gatewayDeps } from './gateway';
 
 async function bootstrap() {
