@@ -10,7 +10,7 @@ import { Contact } from 'chat-api';
 
 @Injectable()
 export class Client2ViewService {
-  convert(client: Client, locks: Lock[], assignations: Assignation[]) {
+  convert(client: Client, locks: Lock[], assignations?: Assignation[]) {
     return {
       id: client.id,
       email: client.email,
@@ -26,7 +26,7 @@ export class Client2ViewService {
       aboutMe: client.about_me,
       img: client.img,
       phoneNumber: client.phone_number,
-      permissions: {
+      permissions: assignations && {
         broadcast: assignations.some(
           (assignation) =>
             assignation.permission === permissionsEnum.broadcast.id,

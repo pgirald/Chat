@@ -4,6 +4,7 @@ import {
   Inject,
   Post,
   Request,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { Op } from 'sequelize';
@@ -18,6 +19,10 @@ import { CrudService } from '../common/crud/crud.services';
 import { Profile, PROFILE } from '../auth/token_extractors/JwtExtractor';
 import { Client2ViewService } from './client2view.service';
 import { AppValidationPipe } from '../common/AppValidation.pipe';
+import { Permissions } from '../permissions/claims.decorators';
+import { CURRENT_PERMISSIONS } from '../permissions/constants';
+import { Permission } from '../persistence/Entities';
+import { PermissionsGuard } from '../permissions/permissions.guard';
 
 @Controller('contacts')
 export class ContactsController {
@@ -32,6 +37,7 @@ export class ContactsController {
   ) {}
 
   @Post('find')
+  @UseGuards(PermissionsGuard)
   async findPage(
     @Body(AppValidationPipe) contactsPaginationDto: ContactsPaginationDto,
     @Request() req,
@@ -55,10 +61,16 @@ export class ContactsController {
           ],
         },
         include: [
-          {
-            model: this.assignations,
-            as: ASSIGNATIONS,
-          },
+          ...((req[CURRENT_PERMISSIONS] as Permission[]).includes(
+            'userPrivilege',
+          )
+            ? [
+                {
+                  model: this.assignations,
+                  as: ASSIGNATIONS,
+                },
+              ]
+            : []),
           {
             model: this.locks,
             as: RESTRICTED_LOCKS,

@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { TestingModule } from '@nestjs/testing';
 import { AUTHORIZATION, BEARER } from '../../auth/constants';
 import { ContactsPaginationDto } from '../../contacts/contacts.dto';
-import { fakeJwt } from '../../../test/src/common/mockApp/fakeJwt';
+import { fakeJwt, getFakeJwt } from '../../../test/src/common/mockApp/fakeJwt';
 import { getTestingApp } from '../../../test/src/common/mockApp/testingApp';
 import {
   substrings,
@@ -16,8 +16,9 @@ import * as request from 'supertest';
 import { EntitiesPaginationDto } from './paginationDto';
 import { forEachObj, getPage } from 'js_utils';
 import { fakeViews } from '../../../test/src/persistence/fakeViews';
-import { ContactsController } from '../../contacts/contacts.controller';
 import { Contact } from 'chat-api';
+import { permission } from 'process';
+import { Client, permissionsEnum } from '../../persistence/Entities';
 
 const contactsNoResultsFilter = fakeData.Clients.reduce<{
   email: string;
@@ -48,8 +49,27 @@ const contactsNoResultsFilter = fakeData.Clients.reduce<{
   },
 ).filter;
 
+const userPrivilegeClient = fakeData.Clients.find((client) =>
+  fakeData.Assignations.filter((ass) => ass.client === client.id).some(
+    (ass) => ass.permission === permissionsEnum.userPrivilege.id,
+  ),
+);
+
+const nonUserPrivilegeClient = fakeData.Clients.find(
+  (client) =>
+    !fakeData.Assignations.filter((ass) => ass.client === client.id).some(
+      (ass) => ass.permission === permissionsEnum.userPrivilege.id,
+    ),
+);
+
+const userJwt = getFakeJwt(userPrivilegeClient);
+
+const nonUserJwt = getFakeJwt(nonUserPrivilegeClient);
+
 describe.each<
   [
+    fakeClient: Client,
+    fakeJwt: string,
     (fakeData: Tables) => any[],
     (fakeView: View) => any[],
     (entity: any, filter: any) => boolean,
@@ -57,10 +77,11 @@ describe.each<
     string,
     any,
     any,
-    new (...any: any) => any,
   ]
 >([
   [
+    userPrivilegeClient,
+    getFakeJwt(userPrivilegeClient),
     (fakeData) => fakeData.Clients,
     (fakeView) => fakeView.contacts,
     (contact: Contact, filter: string) =>
@@ -70,11 +91,29 @@ describe.each<
     '/contacts/find',
     '^&invalid filter +*',
     contactsNoResultsFilter,
-    ContactsController,
+  ],
+  [
+    nonUserPrivilegeClient,
+    getFakeJwt(nonUserPrivilegeClient),
+    (fakeData) => fakeData.Clients,
+    (fakeView) =>
+      fakeView.contacts.map((contact) => ({
+        ...contact,
+        permissions: undefined,
+      })),
+    (contact: Contact, filter: string) =>
+      contact.username.toLowerCase().includes(filter.toLowerCase()) ||
+      contact.email.toLowerCase().includes(filter.toLowerCase()),
+    8,
+    '/contacts/find',
+    '^&invalid filter +*',
+    contactsNoResultsFilter,
   ],
 ])(
   'Should fetch requested pages',
   (
+    fakeClient,
+    fakeJwt,
     getFakeData,
     getFakeView,
     filterCriteria,
@@ -167,7 +206,6 @@ describe.each<
       let views = getFakeView(
         fakeViews.find((views) => views.user.id === fakeClient.id),
       );
-
       if (filter) {
         views = views.filter((entity) => filterCriteria(entity, filter));
       }

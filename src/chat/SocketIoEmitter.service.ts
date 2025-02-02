@@ -1,5 +1,4 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { ExtendedError, Server, Socket } from 'socket.io';
 import { PrivateMessageDto } from './interfaces/events.dto';
 import { Emitter, events } from './interfaces/emitter';

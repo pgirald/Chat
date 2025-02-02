@@ -103,7 +103,9 @@ export function generateData(): Tables {
 
   assignations.push(
     ...unique(
-      randElms(clients.slice(1), privilegedCount).reduce<Assignation[]>(
+      // starts from the third client for ensuring the
+      // existense of a client with no permissions at all
+      randElms(clients.slice(2), privilegedCount).reduce<Assignation[]>(
         (ass, client) => {
           let i = 0;
           do {
@@ -257,7 +259,7 @@ function injectPatterns(fakeData: Tables, substrings: TablesPatterns) {
     if (fakeData[key].length === 0) {
       return;
     }
-    
+
     const chosen = randElms<any>(
       fakeData[key],
       randInt(1, fakeData[key].length),
