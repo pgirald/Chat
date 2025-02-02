@@ -69,6 +69,8 @@ export type Subscription = {
   chat: number;
 };
 
+export type Permission = keyof typeof permissionsEnum;
+
 export const permissionsEnum = {
   defaults: { id: 1, name: 'Defaults' },
   broadcast: { id: 2, name: 'Broadcast' },
