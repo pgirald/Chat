@@ -2,76 +2,44 @@ import { INestApplication } from '@nestjs/common';
 import { TestingModule } from '@nestjs/testing';
 import { AUTHORIZATION, BEARER } from '../../auth/constants';
 import { ContactsPaginationDto } from '../../contacts/contacts.dto';
-import { fakeJwt, getFakeJwt } from '../../../test/src/common/mockApp/fakeJwt';
+import { getFakeJwt } from '../../../test/src/common/mockApp/fakeJwt';
 import { getTestingApp } from '../../../test/src/common/mockApp/testingApp';
 import {
   substrings,
   Tables,
   View,
 } from '../../../test/src/persistence/contants';
-import { fakeClient, fakeData } from '../../../test/src/persistence/FakeData';
+import {
+  fakeClient,
+  fakeData,
+} from '../../../test/src/persistence/fakeData/fakeData';
 import { PAGE_LIMIT } from './constants';
+
 import { useContainer } from 'class-validator';
 import * as request from 'supertest';
 import { EntitiesPaginationDto } from './paginationDto';
 import { forEachObj, getPage } from 'js_utils';
-import { fakeViews } from '../../../test/src/persistence/fakeViews';
+import { fakeViews } from '../../../test/src/persistence/fakeViews/fakeViews';
 import { Contact } from 'chat-api';
 import { permission } from 'process';
-import { Client, permissionsEnum } from '../../persistence/Entities';
-
-const contactsNoResultsFilter = fakeData.Clients.reduce<{
-  email: string;
-  username: string;
-  filter: string;
-}>(
-  (prev, client) => {
-    if (client.username.length > prev.username.length) {
-      prev.username = client.username;
-    }
-    if (client.email.length > prev.email.length) {
-      prev.email = client.email;
-    }
-    return prev;
-  },
-  {
-    email: '',
-    username: '',
-    get filter() {
-      let longer: string;
-      if (this.email.length > this.username.length) {
-        longer = this.email;
-      } else {
-        longer = this.username;
-      }
-      return `${longer}m`;
-    },
-  },
-).filter;
-
-const userPrivilegeClient = fakeData.Clients.find((client) =>
-  fakeData.Assignations.filter((ass) => ass.client === client.id).some(
-    (ass) => ass.permission === permissionsEnum.userPrivilege.id,
-  ),
-);
-
-const nonUserPrivilegeClient = fakeData.Clients.find(
-  (client) =>
-    !fakeData.Assignations.filter((ass) => ass.client === client.id).some(
-      (ass) => ass.permission === permissionsEnum.userPrivilege.id,
-    ),
-);
-
-const userJwt = getFakeJwt(userPrivilegeClient);
-
-const nonUserJwt = getFakeJwt(nonUserPrivilegeClient);
+import {
+  Client,
+  permissionsEnum,
+  restrictionsEnum,
+} from '../../persistence/Entities';
+import {
+  admon,
+  blockedAdmon,
+  blockedGuest,
+  guest,
+} from '../../../test/src/persistence/fakeData/specimens';
+import { contactsNoMatchingFilter } from '../../../test/src/persistence/fakeData/noMatchingFilters';
 
 describe.each<
   [
     fakeClient: Client,
-    fakeJwt: string,
     (fakeData: Tables) => any[],
-    (fakeView: View) => any[],
+    (fakeView: View, fakeClient: Client) => any[],
     (entity: any, filter: any) => boolean,
     number,
     string,
@@ -80,8 +48,7 @@ describe.each<
   ]
 >([
   [
-    userPrivilegeClient,
-    getFakeJwt(userPrivilegeClient),
+    fakeData.Clients.at(admon),
     (fakeData) => fakeData.Clients,
     (fakeView) => fakeView.contacts,
     (contact: Contact, filter: string) =>
@@ -90,11 +57,10 @@ describe.each<
     8,
     '/contacts/find',
     '^&invalid filter +*',
-    contactsNoResultsFilter,
+    contactsNoMatchingFilter,
   ],
   [
-    nonUserPrivilegeClient,
-    getFakeJwt(nonUserPrivilegeClient),
+    fakeData.Clients.at(guest),
     (fakeData) => fakeData.Clients,
     (fakeView) =>
       fakeView.contacts.map((contact) => ({
@@ -107,13 +73,36 @@ describe.each<
     8,
     '/contacts/find',
     '^&invalid filter +*',
-    contactsNoResultsFilter,
+    contactsNoMatchingFilter,
+  ],
+  [
+    fakeData.Clients.at(blockedAdmon),
+    (fakeData) => fakeData.Clients,
+    (fakeView) => fakeView.contacts,
+    (contact: Contact, filter: string) =>
+      contact.username.toLowerCase().includes(filter.toLowerCase()) ||
+      contact.email.toLowerCase().includes(filter.toLowerCase()),
+    8,
+    '/contacts/find',
+    '^&invalid filter +*',
+    contactsNoMatchingFilter,
+  ],
+  [
+    fakeData.Clients.at(blockedGuest),
+    (fakeData) => fakeData.Clients,
+    (fakeView) => fakeView.contacts,
+    (contact: Contact, filter: string) =>
+      contact.username.toLowerCase().includes(filter.toLowerCase()) ||
+      contact.email.toLowerCase().includes(filter.toLowerCase()),
+    8,
+    '/contacts/find',
+    '^&invalid filter +*',
+    contactsNoMatchingFilter,
   ],
 ])(
   'Should fetch requested pages',
   (
     fakeClient,
-    fakeJwt,
     getFakeData,
     getFakeView,
     filterCriteria,
@@ -169,7 +158,7 @@ describe.each<
       }) => {
         const res = await request(app.getHttpServer())
           .post(endPoint)
-          .set(AUTHORIZATION, `${BEARER} ${fakeJwt}`)
+          .set(AUTHORIZATION, `${BEARER} ${getFakeJwt(fakeClient)}`)
           .send(entitiesPaginationDto);
 
         expect(res.status).toBe(expectedStatus);
@@ -205,6 +194,7 @@ describe.each<
     function entitiesPage(page: number, pageCount: number, filter?: any) {
       let views = getFakeView(
         fakeViews.find((views) => views.user.id === fakeClient.id),
+        fakeClient,
       );
       if (filter) {
         views = views.filter((entity) => filterCriteria(entity, filter));

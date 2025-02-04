@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { FAKE_EXPIRATION, FAKE_SECRET } from './constants';
-import { fakeClient } from '../../../src/persistence/FakeData';
+import { fakeClient } from '../../persistence/fakeData/fakeData';
 import { Client } from '../../../../src/persistence/Entities';
 
 const jwtService = new JwtService({ secret: FAKE_SECRET });

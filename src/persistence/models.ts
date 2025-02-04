@@ -15,7 +15,8 @@ import {
 import {
   ASSIGNATIONS,
   PERMISSIONS,
-  RESTRICTED_LOCKS,
+  RESTRICTED_CONTACTS,
+  RESTRICTOR_CONTACTS,
   TablesNames,
 } from './constants';
 import { E } from './interfaces';
@@ -207,9 +208,15 @@ export function defineModels(sequelize: Sequelize) {
   });
 
   Clients.hasMany(Locks, {
-    foreignKey: 'restricted',
-    as: RESTRICTED_LOCKS,
+    foreignKey: 'restrictor',
+    as: RESTRICTOR_CONTACTS,
   });
+
+  Clients.hasMany(Locks, {
+    foreignKey: 'restricted',
+    as: RESTRICTED_CONTACTS,
+  });
+
   Locks.belongsTo(Clients, { foreignKey: 'restricted' });
 
   Clients.belongsToMany(Clients, {

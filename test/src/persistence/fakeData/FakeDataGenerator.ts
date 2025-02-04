@@ -13,15 +13,15 @@ import {
   Ringtone,
   Setting,
   Subscription,
-} from '../../../src/persistence/Entities';
+} from '../../../../src/persistence/Entities';
 import * as bcrypt from 'bcrypt';
-import { TablesNames } from '../../../src/persistence/constants';
+import { TablesNames } from '../../../../src/persistence/constants';
 import {
   DEFAULT_PASSWORD,
   substrings,
   Tables,
   TablesPatterns,
-} from './contants';
+} from '../contants';
 import {
   Gen,
   randElm,
@@ -31,6 +31,8 @@ import {
   typedKeys,
   unique,
 } from 'js_utils';
+import { postGeneration } from './specimens';
+import { generateClient } from './entitiesGenerators';
 
 //TODO: Validate the generation configuration data
 //--------------------Generation configuration start--------------------
@@ -56,19 +58,7 @@ export function generateData(): Tables {
   const clientsIds = range(1, clientsCount);
   const pass = bcrypt.hashSync(DEFAULT_PASSWORD, bcrypt.genSaltSync());
   const clients: Client[] = unique(
-    clientsIds.map((id) => ({
-      id: id,
-      email: faker.internet.email(),
-      first_name: faker.datatype.boolean()
-        ? faker.person.firstName()
-        : undefined,
-      last_name: faker.datatype.boolean() ? faker.person.lastName() : undefined,
-      phone_number: faker.phone.number(),
-      username: `${faker.internet.userName()}`,
-      password: pass,
-      about_me: faker.word.words({ count: { min: 0, max: 10 } }) || undefined,
-      img: faker.datatype.boolean() ? faker.internet.url() : undefined,
-    })),
+    clientsIds.map((id) => generateClient(id)),
     (cl1, cl2) => cl1.email === cl2.email || cl1.username === cl2.username,
   );
 
@@ -248,6 +238,8 @@ export function generateData(): Tables {
 
   injectPatterns(fakeData, substrings);
 
+  postGeneration(fakeData);
+
   return fakeData;
 }
 
@@ -255,6 +247,7 @@ function injectPatterns(fakeData: Tables, substrings: TablesPatterns) {
   let resultingString: string;
   let originalString: string;
   let index: number;
+
   typedKeys(substrings).forEach((key) => {
     if (fakeData[key].length === 0) {
       return;
