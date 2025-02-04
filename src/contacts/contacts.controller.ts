@@ -11,7 +11,8 @@ import { Op } from 'sequelize';
 import {
   ASSIGNATIONS,
   Models,
-  RESTRICTED_LOCKS,
+  RESTRICTED_CONTACTS,
+  RESTRICTOR_CONTACTS,
   TablesNames,
 } from '../persistence/constants';
 import { ContactsPaginationDto } from './contacts.dto';
@@ -19,9 +20,8 @@ import { CrudService } from '../common/crud/crud.services';
 import { Profile, PROFILE } from '../auth/token_extractors/JwtExtractor';
 import { Client2ViewService } from './client2view.service';
 import { AppValidationPipe } from '../common/AppValidation.pipe';
-import { Permissions } from '../permissions/claims.decorators';
 import { CURRENT_PERMISSIONS } from '../permissions/constants';
-import { Permission } from '../persistence/Entities';
+import { Permission, restrictionsEnum } from '../persistence/Entities';
 import { PermissionsGuard } from '../permissions/permissions.guard';
 
 @Controller('contacts')
@@ -46,20 +46,6 @@ export class ContactsController {
       this.clients,
       contactsPaginationDto.paginationInfo,
       {
-        where: contactsPaginationDto.filter && {
-          [Op.or]: [
-            {
-              username: {
-                [Op.like]: `%${contactsPaginationDto.filter}%`,
-              },
-            },
-            {
-              email: {
-                [Op.like]: `%${contactsPaginationDto.filter}%`,
-              },
-            },
-          ],
-        },
         include: [
           ...((req[CURRENT_PERMISSIONS] as Permission[]).includes(
             'userPrivilege',
@@ -73,7 +59,7 @@ export class ContactsController {
             : []),
           {
             model: this.locks,
-            as: RESTRICTED_LOCKS,
+            as: RESTRICTED_CONTACTS,
             required: false,
             where: {
               restrictor: {
@@ -81,6 +67,52 @@ export class ContactsController {
               },
             },
           },
+          {
+            model: this.locks,
+            as: RESTRICTOR_CONTACTS,
+            required: false,
+            where: {
+              [Op.and]: [
+                {
+                  restricted: {
+                    [Op.eq]: (req[PROFILE] as Profile).id,
+                  },
+                },
+                {
+                  restriction: {
+                    [Op.eq]: restrictionsEnum.block.id,
+                  },
+                },
+              ],
+            },
+            subQuery: true,
+          },
+        ],
+        //subQuery: false,
+        where: [
+          {
+            [`$${RESTRICTOR_CONTACTS}.restriction$`]: {
+              [Op.is]: null,
+            },
+          },
+          ...(contactsPaginationDto.filter
+            ? [
+                {
+                  [Op.or]: [
+                    {
+                      username: {
+                        [Op.like]: `%${contactsPaginationDto.filter}%`,
+                      },
+                    },
+                    {
+                      email: {
+                        [Op.like]: `%${contactsPaginationDto.filter}%`,
+                      },
+                    },
+                  ],
+                },
+              ]
+            : []),
         ],
       },
     );
@@ -88,7 +120,7 @@ export class ContactsController {
     const views = page.map(({ dataValues: client }) =>
       this.client2view.convert(
         client,
-        client[RESTRICTED_LOCKS],
+        client[RESTRICTED_CONTACTS],
         client[ASSIGNATIONS],
       ),
     );

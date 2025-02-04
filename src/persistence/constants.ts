@@ -30,4 +30,6 @@ export const PERMISSIONS = 'permissions_alias';
 
 export const ASSIGNATIONS = 'assignations_alias';
 
-export const RESTRICTED_LOCKS = 'restricted_locks_alias';
+export const RESTRICTOR_CONTACTS = 'restrictor_contacts_alias';
+
+export const RESTRICTED_CONTACTS = 'restricted_contacts_alias';

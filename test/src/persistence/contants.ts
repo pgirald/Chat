@@ -1,4 +1,4 @@
-import { ArrayElement, StringFields } from 'js_utils';
+import { ArrayElement, Gen, StringFields } from 'js_utils';
 import { TablesNames } from '../../../src/persistence/constants';
 import {
   Assignation,
@@ -12,6 +12,7 @@ import {
   Ringtone,
   Setting,
   Subscription,
+  permissionsEnum,
 } from '../../../src/persistence/Entities';
 import { Contact, Settings, User, Chat as Chatvw } from 'chat-api';
 
@@ -41,8 +42,6 @@ export type TablesPatterns = {
     fields: StringFields<ArrayElement<Tables[key]>>[];
   };
 };
-
-type mus = StringFields<User>;
 
 export const substrings: TablesPatterns = {
   [TablesNames.Clients]: {

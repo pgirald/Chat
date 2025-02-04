@@ -10,7 +10,7 @@ import { defineModels } from '../../../src/persistence/models';
 import { newMssqlSequelize } from '../../../src/persistence/source';
 import * as fs from 'fs';
 import { FAKES_FILE } from './contants';
-import { fakeData } from './FakeData';
+import { fakeData } from './fakeData/fakeData';
 import { newMemorySqliteSequelize } from './Data_Source';
 
 export const fakePersistenceProviders = [

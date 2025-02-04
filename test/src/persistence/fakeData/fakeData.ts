@@ -1,4 +1,4 @@
-import { FAKES_FILE, Tables } from './contants';
+import { FAKES_FILE, Tables } from '../contants';
 import * as fs from 'fs';
 
 export const fakeData: Tables = JSON.parse(

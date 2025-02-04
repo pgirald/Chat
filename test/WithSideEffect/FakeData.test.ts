@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { generateData } from '../src/persistence/FakeDataGenerator';
+import { generateData } from '../src/persistence/fakeData/FakeDataGenerator';
 import { FAKES_FILE } from '../src/persistence/contants';
 
 test('Generate fake data', () => {
