@@ -22,11 +22,7 @@ import { forEachObj, getPage } from 'js_utils';
 import { fakeViews } from '../../../test/src/persistence/fakeViews/fakeViews';
 import { Contact } from 'chat-api';
 import { permission } from 'process';
-import {
-  Client,
-  permissionsEnum,
-  restrictionsEnum,
-} from '../../persistence/Entities';
+import { Client } from '../../persistence/Entities';
 import {
   admon,
   blockedAdmon,
@@ -62,11 +58,7 @@ describe.each<
   [
     fakeData.Clients.at(guest),
     (fakeData) => fakeData.Clients,
-    (fakeView) =>
-      fakeView.contacts.map((contact) => ({
-        ...contact,
-        permissions: undefined,
-      })),
+    (fakeView) => fakeView.contacts,
     (contact: Contact, filter: string) =>
       contact.username.toLowerCase().includes(filter.toLowerCase()) ||
       contact.email.toLowerCase().includes(filter.toLowerCase()),
