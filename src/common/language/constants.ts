@@ -6,14 +6,16 @@ import {
 } from 'class-validator';
 import { Language } from './interfaces';
 import { IS_USERNAME } from '../../auth/validators/isUsername';
-import { IS_CONTACTS_FILTER } from '../../contacts/isContactFilter';
 import { IS_UNDER_PAGE_LIMIT } from '../crud/isUnderPageLimit';
 import { PAGE_LIMIT } from '../crud/constants';
+import { IS_CONTACTS_FILTER } from '../../contacts/validators/isContactFilter';
+import { IS_CHAT_NAME } from '../../chats/validators/isChatName';
 
 export const english: Language = {
   lang: 'english',
   usernameNotAvailable: 'Username not available.',
   emailNotAvailable: 'Email not available.',
+  group: 'Group',
   validation: {
     getDefault: function (property: string): string {
       return `The value of ${property} is invalid.`;
@@ -25,6 +27,7 @@ export const english: Language = {
     [IS_INT]: 'The value is not an interger number.',
     [IS_POSITIVE]: 'The value is not positive. ',
     [IS_UNDER_PAGE_LIMIT]: `The requested page size exceeds the limit.`,
+    [IS_CHAT_NAME]: 'The chat name has an invalid format.',
   },
   status: {
     200: 'OK',
@@ -53,6 +56,7 @@ export const spanish: Language = {
   lang: 'spanish',
   usernameNotAvailable: 'Usuario no disponible.',
   emailNotAvailable: 'Email no disponible.',
+  group: 'Grupo',
   validation: {
     getDefault: function (property: string): string {
       return `El valor de ${property} es inválido.`;
@@ -64,6 +68,7 @@ export const spanish: Language = {
     [IS_INT]: 'El valor no es un número entero.',
     [IS_POSITIVE]: 'El valor no es un número positivo.',
     [IS_UNDER_PAGE_LIMIT]: `El tamaño de página solicitado supera el límite.`,
+    [IS_CHAT_NAME]: 'El nombre de chat tiene un formato inválido.',
   },
   status: {
     200: 'Correcto',

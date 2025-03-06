@@ -7,5 +7,5 @@ import {
 
 @Injectable()
 export class FakePersistenceService {
-  constructor(@Inject(MODELS) private readonly models: Models) {}
+  async releaseResources(models: Models) {}
 }

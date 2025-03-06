@@ -1,7 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { TestingModule } from '@nestjs/testing';
 import { AUTHORIZATION, BEARER } from '../../auth/constants';
-import { ContactsPaginationDto } from '../../contacts/contacts.dto';
 import { getFakeJwt } from '../../../test/src/common/mockApp/fakeJwt';
 import { getTestingApp } from '../../../test/src/common/mockApp/testingApp';
 import {
@@ -17,10 +16,10 @@ import { PAGE_LIMIT } from './constants';
 
 import { useContainer } from 'class-validator';
 import * as request from 'supertest';
-import { EntitiesPaginationDto } from './paginationDto';
+import { EntitiesPaginationDto, PaginationDto } from './paginationDto';
 import { forEachObj, getPage } from 'js_utils';
 import { fakeViews } from '../../../test/src/persistence/fakeViews/fakeViews';
-import { Contact } from 'chat-api';
+import { Chat, Contact } from 'chat-api';
 import { permission } from 'process';
 import { Client } from '../../persistence/Entities';
 import {
@@ -28,8 +27,13 @@ import {
   blockedAdmon,
   blockedGuest,
   guest,
+  noChatsUser,
 } from '../../../test/src/persistence/fakeData/specimens';
-import { contactsNoMatchingFilter } from '../../../test/src/persistence/fakeData/noMatchingFilters';
+import {
+  chatsNoMatchingFilter,
+  contactsNoMatchingFilter,
+} from '../../../test/src/persistence/fakeData/noMatchingFilters';
+import { ContactsPaginationDto } from '../../contacts/dto/contactsPagination.dto';
 
 describe.each<
   [
@@ -43,6 +47,54 @@ describe.each<
     any,
   ]
 >([
+  [
+    fakeData.Clients.at(noChatsUser),
+    (fakeData) => fakeData.Chats,
+    (fakeView) =>
+      fakeView.chats.map((chat) => {
+        chat.messages = chat.messages.slice(-10);
+        chat.subs.sort((sub1, sub2) => sub1.id - sub2.id);
+        return chat;
+      }),
+    (chat: Chat, filter: string) =>
+      chat.name.toLowerCase().includes(filter.toLowerCase()),
+    8,
+    '/chats/find',
+    '^&invalid filter +*',
+    chatsNoMatchingFilter,
+  ],
+  [
+    fakeData.Clients.at(admon),
+    (fakeData) => fakeData.Chats,
+    (fakeView) =>
+      fakeView.chats.map((chat) => {
+        chat.messages = chat.messages.slice(-10);
+        chat.subs.sort((sub1, sub2) => sub1.id - sub2.id);
+        return chat;
+      }),
+    (chat: Chat, filter: string) =>
+      chat.name.toLowerCase().includes(filter.toLowerCase()),
+    8,
+    '/chats/find',
+    '^&invalid filter +*',
+    chatsNoMatchingFilter,
+  ],
+  [
+    fakeData.Clients.at(guest),
+    (fakeData) => fakeData.Chats,
+    (fakeView) =>
+      fakeView.chats.map((chat) => {
+        chat.messages = chat.messages.slice(-10);
+        chat.subs.sort((sub1, sub2) => sub1.id - sub2.id);
+        return chat;
+      }),
+    (chat: Chat, filter: string) =>
+      chat.name.toLowerCase().includes(filter.toLowerCase()),
+    8,
+    '/chats/find',
+    '^&invalid filter +*',
+    chatsNoMatchingFilter,
+  ],
   [
     fakeData.Clients.at(admon),
     (fakeData) => fakeData.Clients,
@@ -116,27 +168,27 @@ describe.each<
     });
 
     it.each`
-      entitiesPaginationDto                                                                                                                                                                | erroneousProps                 | expectedStatus
-      ${{ paginationInfo: { page: 0, count: getFakeData(fakeData).length } } as ContactsPaginationDto}                                                                                     | ${undefined}                   | ${201}
-      ${{ paginationInfo: { page: 0, count: pageCount } } as ContactsPaginationDto}                                                                                                        | ${undefined}                   | ${201}
-      ${{ paginationInfo: { page: Math.floor(Math.ceil(getFakeData(fakeData).length / pageCount) / 2), count: pageCount } } as ContactsPaginationDto}                                      | ${undefined}                   | ${201}
-      ${{ paginationInfo: { page: -Math.floor(Math.ceil(getFakeData(fakeData).length / pageCount) / 2), count: pageCount } } as ContactsPaginationDto}                                     | ${undefined}                   | ${201}
-      ${{ paginationInfo: { page: Math.ceil(getFakeData(fakeData).length / pageCount) + 1, count: pageCount } } as ContactsPaginationDto}                                                  | ${undefined}                   | ${201}
-      ${{ paginationInfo: { page: -(Math.ceil(getFakeData(fakeData).length / pageCount) + 1), count: pageCount } } as ContactsPaginationDto}                                               | ${undefined}                   | ${201}
-      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: 0, count: pageCount } } as ContactsPaginationDto}                                                                    | ${undefined}                   | ${201}
-      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: 0, count: getFakeData(fakeData).length } } as ContactsPaginationDto}                                                 | ${undefined}                   | ${201}
-      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: Math.floor(Math.ceil(getFakeData(fakeData).length / pageCount) / 2), count: pageCount } } as ContactsPaginationDto}  | ${undefined}                   | ${201}
-      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: -Math.floor(Math.ceil(getFakeData(fakeData).length / pageCount) / 2), count: pageCount } } as ContactsPaginationDto} | ${undefined}                   | ${201}
-      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: Math.ceil(getFakeData(fakeData).length / pageCount) + 1, count: pageCount } } as ContactsPaginationDto}              | ${undefined}                   | ${201}
-      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: -(Math.ceil(getFakeData(fakeData).length / pageCount) + 1), count: pageCount } } as ContactsPaginationDto}           | ${undefined}                   | ${201}
-      ${{ filter: noResultsFilter, paginationInfo: { page: 0, count: pageCount } } as ContactsPaginationDto}                                                                               | ${undefined}                   | ${201}
-      ${{ paginationInfo: { page: 0, count: -6 } } as ContactsPaginationDto}                                                                                                               | ${['count']}                   | ${400}
-      ${{ filter: invalidFilter, paginationInfo: { page: 0, count: getFakeData(fakeData).length } } as ContactsPaginationDto}                                                              | ${['filter']}                  | ${400}
-      ${{ paginationInfo: { page: 0.3, count: pageCount } } as ContactsPaginationDto}                                                                                                      | ${['page']}                    | ${400}
-      ${{ paginationInfo: { page: 0.3, count: -6 } } as ContactsPaginationDto}                                                                                                             | ${['page', 'count']}           | ${400}
-      ${{ filter: invalidFilter, paginationInfo: { page: 0.3, count: pageCount } } as ContactsPaginationDto}                                                                               | ${['page', 'filter']}          | ${400}
-      ${{ filter: invalidFilter, paginationInfo: { page: 0, count: -6 } } as ContactsPaginationDto}                                                                                        | ${['filter', 'count']}         | ${400}
-      ${{ filter: invalidFilter, paginationInfo: { page: 0.3, count: -6 } } as ContactsPaginationDto}                                                                                      | ${['page', 'count', 'filter']} | ${400}
+      entitiesPaginationDto                                                                                                                                                                        | erroneousProps                 | expectedStatus
+      ${{ paginationInfo: { page: 0, count: getFakeData(fakeData).length } } as EntitiesPaginationDto<string>}                                                                                     | ${undefined}                   | ${201}
+      ${{ paginationInfo: { page: 0, count: pageCount } } as EntitiesPaginationDto<string>}                                                                                                        | ${undefined}                   | ${201}
+      ${{ paginationInfo: { page: Math.floor(Math.ceil(getFakeData(fakeData).length / pageCount) / 2), count: pageCount } } as EntitiesPaginationDto<string>}                                      | ${undefined}                   | ${201}
+      ${{ paginationInfo: { page: -Math.floor(Math.ceil(getFakeData(fakeData).length / pageCount) / 2), count: pageCount } } as EntitiesPaginationDto<string>}                                     | ${undefined}                   | ${201}
+      ${{ paginationInfo: { page: Math.ceil(getFakeData(fakeData).length / pageCount) + 1, count: pageCount } } as EntitiesPaginationDto<string>}                                                  | ${undefined}                   | ${201}
+      ${{ paginationInfo: { page: -(Math.ceil(getFakeData(fakeData).length / pageCount) + 1), count: pageCount } } as EntitiesPaginationDto<string>}                                               | ${undefined}                   | ${201}
+      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: 0, count: pageCount } } as EntitiesPaginationDto<string>}                                                                    | ${undefined}                   | ${201}
+      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: 0, count: getFakeData(fakeData).length } } as EntitiesPaginationDto<string>}                                                 | ${undefined}                   | ${201}
+      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: Math.floor(Math.ceil(getFakeData(fakeData).length / pageCount) / 2), count: pageCount } } as EntitiesPaginationDto<string>}  | ${undefined}                   | ${201}
+      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: -Math.floor(Math.ceil(getFakeData(fakeData).length / pageCount) / 2), count: pageCount } } as EntitiesPaginationDto<string>} | ${undefined}                   | ${201}
+      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: Math.ceil(getFakeData(fakeData).length / pageCount) + 1, count: pageCount } } as EntitiesPaginationDto<string>}              | ${undefined}                   | ${201}
+      ${{ filter: substrings.Clients.pattern, paginationInfo: { page: -(Math.ceil(getFakeData(fakeData).length / pageCount) + 1), count: pageCount } } as EntitiesPaginationDto<string>}           | ${undefined}                   | ${201}
+      ${{ filter: noResultsFilter, paginationInfo: { page: 0, count: pageCount } } as EntitiesPaginationDto<string>}                                                                               | ${undefined}                   | ${201}
+      ${{ paginationInfo: { page: 0, count: -6 } } as EntitiesPaginationDto<string>}                                                                                                               | ${['count']}                   | ${400}
+      ${{ filter: invalidFilter, paginationInfo: { page: 0, count: getFakeData(fakeData).length } } as EntitiesPaginationDto<string>}                                                              | ${['filter']}                  | ${400}
+      ${{ paginationInfo: { page: 0.3, count: pageCount } } as EntitiesPaginationDto<string>}                                                                                                      | ${['page']}                    | ${400}
+      ${{ paginationInfo: { page: 0.3, count: -6 } } as EntitiesPaginationDto<string>}                                                                                                             | ${['page', 'count']}           | ${400}
+      ${{ filter: invalidFilter, paginationInfo: { page: 0.3, count: pageCount } } as EntitiesPaginationDto<string>}                                                                               | ${['page', 'filter']}          | ${400}
+      ${{ filter: invalidFilter, paginationInfo: { page: 0, count: -6 } } as EntitiesPaginationDto<string>}                                                                                        | ${['filter', 'count']}         | ${400}
+      ${{ filter: invalidFilter, paginationInfo: { page: 0.3, count: -6 } } as EntitiesPaginationDto<string>}                                                                                      | ${['page', 'count', 'filter']} | ${400}
     `(
       'should fetch',
       async ({
@@ -194,5 +246,9 @@ describe.each<
       views.sort((c1, c2) => c1.id - c2.id);
       return getPage(views, page, pageCount);
     }
+
+    afterAll(() => app.close());
   },
 );
+
+// test('nothing', () => {});

@@ -51,13 +51,13 @@ describe('ContactsController', () => {
 
   it.each`
     signUpDto                                                                                                     | expectedStatus | erroneousProps
-    ${{ username: 'us', email: 'validmail@mail.com', password: 'Strong Pass @ 1234567' }}                         | ${400}         | ${['username']}
+    ${{ username: 'us**', email: 'validmail@mail.com', password: 'Strong Pass @ 1234567' }}                         | ${400}         | ${['username']}
     ${{ username: 'validUser123', email: 'invalid-email', password: 'Strong Pass @ 1234567' }}                    | ${400}         | ${['email']}
     ${{ username: 'validUser123', email: 'validmail@mail.com', password: 'weak' }}                                | ${400}         | ${['password']}
-    ${{ username: 'us', email: 'invalid-email', password: 'Strong Pass @ 1234567' }}                              | ${400}         | ${['email', 'username']}
+    ${{ username: 'us**', email: 'invalid-email', password: 'Strong Pass @ 1234567' }}                              | ${400}         | ${['email', 'username']}
     ${{ username: 'validUser123', email: 'invalid-email', password: 'weak' }}                                     | ${400}         | ${['email', 'password']}
-    ${{ username: 'us', email: 'validmail@mail.com', password: 'weak' }}                                          | ${400}         | ${['username', 'password']}
-    ${{ username: 'us', email: 'invalid-email', password: 'weak' }}                                               | ${400}         | ${['username', 'password', 'email']}
+    ${{ username: 'us**', email: 'validmail@mail.com', password: 'weak' }}                                          | ${400}         | ${['username', 'password']}
+    ${{ username: 'us**', email: 'invalid-email', password: 'weak' }}                                               | ${400}         | ${['username', 'password', 'email']}
     ${{ username: fakeData.Clients[0].username, email: 'validmail@mail.com', password: 'Strong Pass @ 1234567' }} | ${400}         | ${['username']}
     ${{ username: 'validUser123', email: fakeData.Clients[0].email, password: 'Strong Pass @ 1234567' }}          | ${400}         | ${['email']}
     ${{ ...fakeData.Clients[0], password: 'Strong Pass @ 1234567' }}                                              | ${400}         | ${['email', 'username']}

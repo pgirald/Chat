@@ -1,5 +1,5 @@
 import {
-  FREER,
+  RELEASER,
   Models,
   MODELS,
   TablesNames,
@@ -7,9 +7,6 @@ import {
 import { ModelStatic, QueryTypes } from 'sequelize';
 import { FakePersistenceService } from './fakePersistense.service';
 import { defineModels } from '../../../src/persistence/models';
-import { newMssqlSequelize } from '../../../src/persistence/source';
-import * as fs from 'fs';
-import { FAKES_FILE } from './contants';
 import { fakeData } from './fakeData/fakeData';
 import { newMemorySqliteSequelize } from './Data_Source';
 
@@ -18,7 +15,7 @@ export const fakePersistenceProviders = [
     provide: MODELS,
     useFactory: mockModelsFactory,
   },
-  { provide: FREER, useClass: FakePersistenceService },
+  { provide: RELEASER, useClass: FakePersistenceService },
 ];
 
 export async function mockModelsFactory() {
@@ -34,7 +31,6 @@ export async function mockModelsFactory() {
     console.log(e);
   }
   //console.log('Tables created successfully.');
-
   for (const tbl of Object.values(TablesNames)) {
     //console.log(`Starting [${tbl}] population`);
     await (testingDbModels[tbl] as ModelStatic<never>).bulkCreate(

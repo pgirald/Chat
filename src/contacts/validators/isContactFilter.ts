@@ -8,7 +8,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { isUsername } from '../auth/validators/isUsername';
+import { USERNAME_REGEX } from '../../persistence/constants';
 
 export const IS_CONTACTS_FILTER = 'isContactsFilter';
 
@@ -19,7 +19,7 @@ export class IsContactsFilterConstraint
   async validate(filter: any, args: ValidationArguments) {
     return (
       typeof filter === 'string' &&
-      (matches(filter, /^([_.-]?[A-Za-z0-9])*$/) || isEmail(filter))
+      (matches(filter, USERNAME_REGEX) || isEmail(filter))
     );
   }
 

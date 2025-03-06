@@ -86,13 +86,11 @@ export function generateViews(fakeData: Tables) {
       ).blocked;
     });
 
-    newContacts[i] = newContacts[i].map((contact) => {
-      if (views[i].user.permissions.userPrivileges) {
-        return contact;
-      }
-      const { permissions, ..._contact } = contact;
-      return _contact;
-    });
+    if (!views[i].user.permissions.userPrivileges) {
+      newContacts[i].forEach((contact) => {
+        delete contact.permissions;
+      });
+    }
   }
 
   for (let i = 0; i < views.length; i++) {

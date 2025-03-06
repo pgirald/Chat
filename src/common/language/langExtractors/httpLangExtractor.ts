@@ -11,7 +11,8 @@ export class HttpLangExtractor implements LangExtractor {
   }
 }
 
-export const HttpLangExtractorProvider = {
+export const 
+HttpLangExtractorProvider = {
   provide: LangExtractor,
   useClass: HttpLangExtractor,
 };

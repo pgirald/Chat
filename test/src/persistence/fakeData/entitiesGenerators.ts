@@ -12,7 +12,7 @@ export function generateClient(id: number) {
     first_name: faker.datatype.boolean() ? faker.person.firstName() : undefined,
     last_name: faker.datatype.boolean() ? faker.person.lastName() : undefined,
     phone_number: faker.phone.number(),
-    username: `${faker.internet.userName()}`,
+    username: faker.internet.userName(),
     password: password,
     about_me: faker.word.words({ count: { min: 0, max: 10 } }) || undefined,
     img: faker.datatype.boolean() ? faker.internet.url() : undefined,

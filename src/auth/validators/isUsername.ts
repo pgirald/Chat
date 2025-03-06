@@ -7,11 +7,9 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { Models, MODELS } from '../../persistence/constants';
+import { Models, MODELS, USERNAME_REGEX } from '../../persistence/constants';
 
 export const IS_USERNAME = 'isUsername';
-
-export const USERNAME_REGEX = /^[A-Za-z]([_.-]?[A-Za-z0-9]){7,29}$/;
 
 @ValidatorConstraint({ name: IS_USERNAME })
 export class IsUsernameConstraint implements ValidatorConstraintInterface {

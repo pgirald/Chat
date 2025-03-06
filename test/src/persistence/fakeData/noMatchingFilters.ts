@@ -1,4 +1,4 @@
-import { fakeData } from "./fakeData";
+import { fakeData } from './fakeData';
 
 export const contactsNoMatchingFilter = fakeData.Clients.reduce<{
   email: string;
@@ -28,3 +28,11 @@ export const contactsNoMatchingFilter = fakeData.Clients.reduce<{
     },
   },
 ).filter;
+
+export const chatsNoMatchingFilter =
+  fakeData.Chats.reduce<string>((prev, chat) => {
+    if (chat.name.length > prev.length) {
+      return chat.name;
+    }
+    return prev;
+  }, '') + 'm';
