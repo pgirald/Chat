@@ -7,6 +7,8 @@ import { ContactsModule } from './contacts/contacts.module';
 import { HttpLanguageModule } from './common/language/httpLanguage.module';
 import { AppValidationPipe } from './common/AppValidation.pipe';
 import { APP_FILTER } from '@nestjs/core';
+import { ChatsModule } from './chats/chats.module';
+import { RingtonesModule } from './ringtones/ringtones.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { APP_FILTER } from '@nestjs/core';
     AuthModule,
     ChatModule,
     ContactsModule,
+    ChatsModule,
+    RingtonesModule,
   ],
   providers: [AppValidationPipe],
 })

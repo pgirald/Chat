@@ -48,6 +48,10 @@ export const substrings: TablesPatterns = {
     pattern: 'ac',
     fields: ['email', 'username'],
   },
+  [TablesNames.Chats]: {
+    pattern: 'gu',
+    fields: ['name'],
+  },
 };
 
 export type View = {

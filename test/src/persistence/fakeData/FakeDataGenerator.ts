@@ -172,6 +172,7 @@ export function generateData(): Tables {
   );
 
   const chatIds = range(1, clientsIds.length * avgChatsCount);
+
   const chats: Chat[] = chatIds.map((id) => ({
     id: id,
     name: faker.datatype.boolean() ? faker.word.noun() : undefined,
@@ -182,18 +183,33 @@ export function generateData(): Tables {
       : undefined,
   }));
 
-  const subscriptions: Subscription[] = unique(
-    chats
-      .map<Subscription[]>((chat) => {
-        const subs: Subscription[] = [];
-        for (let i = 1; i <= maxChatMembers && faker.datatype.boolean(); i++) {
-          subs.push({ chat: chat.id, sub: randElm(clientsIds) });
-        }
-        return [{ chat: chat.id, sub: chat.owner }, ...subs];
-      })
-      .flat(),
-    (sub1, sub2) => sub1.chat === sub2.chat && sub1.sub === sub2.sub,
-  );
+  const subscriptions: Subscription[] = chats
+    .map<Subscription[]>((chat) => {
+      let subs: Subscription[] = [];
+      for (let i = 1; i <= maxChatMembers && faker.datatype.boolean(); i++) {
+        subs.push({ chat: chat.id, sub: randElm(clientsIds) });
+      }
+      subs = [{ chat: chat.id, sub: chat.owner }, ...subs];
+      subs = unique(
+        subs,
+        (sub1, sub2) => sub1.chat === sub2.chat && sub1.sub === sub2.sub,
+      );
+      if (chat.name) {
+        return subs;
+      }
+      if (subs.length === 1) {
+        chat.name = clients.find((client) => client.id === chat.owner).username;
+      } else if (subs.length === 2) {
+        chat.name = clients.find(
+          (client) =>
+            client.id === subs.find((sub) => sub.sub !== chat.owner).sub,
+        ).username;
+      } else {
+        chat.name = `Group ${chat.id}`;
+      }
+      return subs;
+    })
+    .flat();
 
   gen.reset();
 

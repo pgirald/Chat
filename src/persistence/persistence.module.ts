@@ -1,8 +1,13 @@
 import { DynamicModule, Inject, Module, Provider } from '@nestjs/common';
-import { FREER, Models, MODELS, TablesNames } from './constants';
+import {
+  RELEASER,
+  Models,
+  MODELS,
+} from './constants';
 import { PersistenceService } from './persistence.service';
 import { newMssqlSequelize } from './source';
 import { defineModels } from './models';
+import { PersistenceReleaserService } from './persistenceReleaser.service';
 
 @Module({})
 export class PersistenceModule {
@@ -19,7 +24,8 @@ export class PersistenceModule {
             return { sequelize, ...dbmodels } as Models;
           },
         },
-        { provide: FREER, useClass: PersistenceService },
+        PersistenceService,
+        { provide: RELEASER, useClass: PersistenceReleaserService },
         ...models.map<Provider>((model) => ({
           provide: model,
           inject: [MODELS],

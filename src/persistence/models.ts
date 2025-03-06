@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model } from 'sequelize';
+import { Sequelize, DataTypes, Model, ModelAttributes } from 'sequelize';
 import {
   Assignation,
   Banned as _Banned,
@@ -14,9 +14,22 @@ import {
 } from './Entities';
 import {
   ASSIGNATIONS,
+  CHAT_CONTACTS,
+  CHAT_MESSAGES,
+  CHAT_OWNER,
+  CHAT_RINGTONE,
+  CHAT_SUBSCRIPTIONS,
+  CLIENT_SUBSCRIPTIONS,
+  CONTACT_CHATS,
+  MESSAGE_ATTACHMENTS,
+  MESSAGE_SENDER,
+  MESSAGES_IDXS,
+  MESSAGES_MESSAGES,
+  OWNED_CHATS,
   PERMISSIONS,
   RESTRICTED_CONTACTS,
   RESTRICTOR_CONTACTS,
+  SUBSCRIPTION_CLIENT,
   TablesNames,
 } from './constants';
 import { E } from './interfaces';
@@ -219,28 +232,6 @@ export function defineModels(sequelize: Sequelize) {
 
   Locks.belongsTo(Clients, { foreignKey: 'restricted' });
 
-  Clients.belongsToMany(Clients, {
-    through: { model: Locks, unique: false },
-    foreignKey: 'restrictor',
-    as: 'restricted_contacts',
-  });
-  Clients.belongsToMany(Clients, {
-    through: { model: Locks, unique: false },
-    foreignKey: 'restricted',
-    as: 'resctictors',
-  });
-
-  Clients.belongsToMany(Restrictions, {
-    through: { model: Locks, unique: false },
-    foreignKey: 'restricted',
-    as: 'client_restriction',
-  });
-  Restrictions.belongsToMany(Clients, {
-    through: { model: Locks, unique: false },
-    foreignKey: 'restriction',
-    as: 'restricted_clients',
-  });
-
   const Ringtones = sequelize.define<E<Ringtone, 'id'>>(TablesNames.Ringtones, {
     id: {
       type: DataTypes.INTEGER,
@@ -330,7 +321,7 @@ export function defineModels(sequelize: Sequelize) {
       autoIncrement: true,
       primaryKey: true,
     },
-    name: { type: DataTypes.STRING, allowNull: true },
+    name: { type: DataTypes.STRING, allowNull: false },
     img: { type: DataTypes.STRING, allowNull: true },
     owner: {
       type: DataTypes.INTEGER,
@@ -352,11 +343,13 @@ export function defineModels(sequelize: Sequelize) {
     },
   });
 
-  Clients.hasMany(Chats, { foreignKey: 'owner', as: 'chat_owner' });
-  Chats.belongsTo(Clients, { foreignKey: 'owner', as: 'chat_owner' });
+  Clients.hasMany(Chats, { foreignKey: 'owner', as: OWNED_CHATS });
+  Chats.belongsTo(Clients, { foreignKey: 'owner', as: CHAT_OWNER });
 
-  Ringtones.hasMany(Chats, { foreignKey: 'custom_ringtone' });
-  Chats.belongsTo(Ringtones, { foreignKey: 'custom_ringtone' });
+  Chats.belongsTo(Ringtones, {
+    foreignKey: 'custom_ringtone',
+    as: CHAT_RINGTONE,
+  });
 
   const Subscriptions = sequelize.define<E<Subscription, never>>(
     TablesNames.Subscriptions,
@@ -384,23 +377,37 @@ export function defineModels(sequelize: Sequelize) {
     },
   );
 
+  Clients.hasMany(Subscriptions, {
+    foreignKey: 'sub',
+    as: CLIENT_SUBSCRIPTIONS,
+  });
+  Subscriptions.belongsTo(Clients, {
+    foreignKey: 'sub',
+    as: SUBSCRIPTION_CLIENT,
+  });
+
+  Chats.hasMany(Subscriptions, {
+    foreignKey: 'chat',
+    as: CHAT_SUBSCRIPTIONS,
+  });
+
   Chats.belongsToMany(Clients, {
     through: { model: Subscriptions, unique: false },
     foreignKey: 'chat',
-    as: 'chat_clients',
+    as: CHAT_CONTACTS,
   });
 
   Clients.belongsToMany(Chats, {
     through: { model: Subscriptions, unique: false },
     foreignKey: 'sub',
-    as: 'client_chats',
+    as: CONTACT_CHATS,
   });
 
   const Messages = sequelize.define<E<Message, 'id'>>(
     TablesNames.Messages,
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         autoIncrement: true,
         primaryKey: true,
       },
@@ -442,10 +449,21 @@ export function defineModels(sequelize: Sequelize) {
   );
 
   Clients.hasMany(Messages, { foreignKey: 'sender' });
-  Messages.belongsTo(Clients, { foreignKey: 'sender' });
+  Messages.belongsTo(Clients, { foreignKey: 'sender', as: MESSAGE_SENDER });
 
-  Chats.hasMany(Messages, { foreignKey: 'chat' });
+  Chats.hasMany(Messages, { foreignKey: 'chat', as: CHAT_MESSAGES });
   Messages.belongsTo(Chats, { foreignKey: 'chat' });
+
+  Messages.hasMany(Messages, {
+    sourceKey: 'chat',
+    foreignKey: 'chat',
+    as: MESSAGES_IDXS,
+  });
+
+  Messages.hasMany(Messages, {
+    foreignKey: 'id',
+    as: MESSAGES_MESSAGES,
+  });
 
   const Attachments = sequelize.define<E<Attachment, 'id'>>(
     TablesNames.Attachments,
@@ -460,7 +478,7 @@ export function defineModels(sequelize: Sequelize) {
         allowNull: false,
       },
       message: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false,
         references: {
           model: Messages,
@@ -471,7 +489,10 @@ export function defineModels(sequelize: Sequelize) {
     },
   );
 
-  Messages.hasMany(Attachments, { foreignKey: 'message' });
+  Messages.hasMany(Attachments, {
+    foreignKey: 'message',
+    as: MESSAGE_ATTACHMENTS,
+  });
   Attachments.belongsTo(Messages, { foreignKey: 'message' });
 
   return {

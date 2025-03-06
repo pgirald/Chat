@@ -1,6 +1,6 @@
 import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '../../../../src/app.module';
-import { FREER, MODELS } from '../../../../src/persistence/constants';
+import { RELEASER, MODELS } from '../../../../src/persistence/constants';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
   fakePersistenceProviders,
@@ -35,7 +35,7 @@ export async function getTestingApp(
   const builder = Test.createTestingModule(module)
     .overrideProvider(MODELS)
     .useFactory({ factory: mockModelsFactory })
-    .overrideProvider(PersistenceService)
+    .overrideProvider(RELEASER)
     .useClass(FakePersistenceService)
     .overrideProvider(ConfigService)
     .useValue({
